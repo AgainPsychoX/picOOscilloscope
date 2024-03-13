@@ -1,11 +1,39 @@
 
 # Project?
 
+
+
+## Hardware 
+
 Microcontroller: [Raspberry Pi Pico](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html).
-Framework: Arduino
 Display: [4'' TFT SPI ST7796 480x320](http://www.lcdwiki.com/4.0inch_SPI_Module_ST7796).
-Display driver: [ST7796(S)](https://www.displayfuture.com/Display/datasheet/controller/ST7796s.pdf) using [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) library for Arduino.
-Touch chipset: XPT2046
+Display driver: [ST7796(S)](https://www.displayfuture.com/Display/datasheet/controller/ST7796s.pdf)
+Touch chipset: [XPT2046](https://grobotronics.com/images/datasheets/xpt2046-datasheet.pdf)
+
+### Microcontroller pins usage
+
+| Pin | GPIO | Notes                                                           |
+|-----|------|-----------------------------------------------------------------|
+|    1 |    0 | Reserved for UART0 TX                                          |
+|    2 |    1 | Reserved for UART0 RX                                          |
+|    3 |  GND | Ground                                                         |
+|    4 |    2 | SPI0 SCK, used for display & touch (shared)                    |
+|    5 |    3 | SPI0 TX (MOSI), used for display & touch (shared)              |
+|    6 |    4 | SPI0 RX (MISO), used for display & touch (shared)              |
+|    7 |    5 | Chip select for the display                                    |
+|    8 |  GND | Ground                                                         |
+|    9 |    6 | Reset for the display & touch (shared?)                        |
+|   10 |    7 | Register select (Data/Command) for the display                 |
+|   11 |    8 | Chip select for the touch                                      |
+|      |      |                                                                |
+
+
+
+## Software
+
+Environment: PlatformIO inside VS Code
+Framework: Arduino <small>(I dislike it a bit, but required for the library)</small>
+Library [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) used to support the display, with the touch support built-in.
 
 
 

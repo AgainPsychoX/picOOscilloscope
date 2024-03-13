@@ -4,6 +4,7 @@
 		"cpppath",
 		"isystem",
 		"mbed",
-		"projenv"
+		"projenv",
+		"UART"
 	]
 }
