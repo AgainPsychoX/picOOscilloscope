@@ -53,6 +53,41 @@ bool getTouch(uint16_t& x, uint16_t& y)
 	return false;
 }
 
+bool getTouchDebouncedZ(uint16_t& xOut, uint16_t& yOut)
+{
+	// Wait until pressure stops increasing to debounce pressure
+	uint16_t z = tft.getTouchRawZ();
+	uint16_t zPrevious;
+	do {
+		zPrevious = z;
+		delay(1);
+		z = tft.getTouchRawZ();
+	}
+	while (z > zPrevious);
+
+	uint16_t x;
+	uint16_t y;
+	static uint16_t xPrevious;
+	static uint16_t yPrevious;
+
+	// Eliminate more than deadband error touch position sudden runaways
+	constexpr auto deadbandErrorLimit = 20;
+	tft.getTouchRaw(&x, &y);
+	bool tooFar = std::abs(x - xPrevious) > deadbandErrorLimit 
+	           || std::abs(y - yPrevious) > deadbandErrorLimit;
+	xPrevious = x;
+	yPrevious = y;
+	if (tooFar) return false;
+
+	if (z >= zThreshold) {
+		calibrationData.convertRaw(x, y);
+		xOut = x;
+		yOut = y;
+		return true;
+	}
+	return false;
+}
+
 bool getTouchAverage(uint16_t& x, uint16_t& y, uint8_t samplesTwoExponent = 4)
 {
 	static uint16_t ax, ay, az;
@@ -270,15 +305,16 @@ void loop()
 
 	// Converted values
 	if (touch::getTouch(x, y)) {
-		tft.fillCircle(x, y, 2, TFT_WHITE);
+		tft.fillCircle(x, y, 2, TFT_DARKGREY);
 	}
 	sprintf(buffer, " x=%5u  y=%5u     \n", x, y);
 	tft.setCursor(centerBoxX, tft.getCursorY());
 	tft.print(buffer);
 
 	// Converted values (after average)
-	if (touch::getTouchAverage(x, y)) {
-		// tft.fillCircle(x, y, 2, TFT_GREEN);
+	// if (touch::getTouchAverage(x, y)) {
+	if (touch::getTouchDebouncedZ(x, y)) {
+		tft.fillCircle(x, y, 2, TFT_WHITE);
 	}
 	sprintf(buffer, "ax=%5u ay=%5u     \n", x, y);
 	tft.setCursor(centerBoxX, tft.getCursorY());
