@@ -71,13 +71,19 @@ bool getTouchDebouncedZ(uint16_t& xOut, uint16_t& yOut)
 	static uint16_t yPrevious;
 
 	// Eliminate more than deadband error touch position sudden runaways
-	constexpr auto deadbandErrorLimit = 20;
+	constexpr auto deadbandErrorLimit = 30;
 	tft.getTouchRaw(&x, &y);
 	bool tooFar = std::abs(x - xPrevious) > deadbandErrorLimit 
 	           || std::abs(y - yPrevious) > deadbandErrorLimit;
-	xPrevious = x;
-	yPrevious = y;
-	if (tooFar) return false;
+	if (tooFar) {
+		xPrevious = x;
+		yPrevious = y;
+		return false;
+	}
+	else {
+		xPrevious = x = (x + xPrevious) / 2;
+		yPrevious = y = (y + yPrevious) / 2;
+	}
 
 	if (z >= zThreshold) {
 		calibrationData.convertRaw(x, y);
@@ -289,6 +295,9 @@ void setup()
 	centerBoxY = tft.height()/3;
 }
 
+uint16_t countSimple = 0;
+uint16_t countAdvanced = 0;
+
 void loop()
 {
 	uint16_t x, y, z;
@@ -299,30 +308,39 @@ void loop()
 	// Raw values
 	tft.getTouchRaw(&x, &y);
 	z = tft.getTouchRawZ();
-	sprintf(buffer, "rx=%5u ry=%5u rz=%5u     \n", x, y, z);
+	sprintf(buffer, "rx=%5u ry=%5u rz=%5u     ", x, y, z);
 	tft.setCursor(centerBoxX, tft.getCursorY());
-	tft.print(buffer);
+	tft.println(buffer);
 
 	// Converted values
 	if (touch::getTouch(x, y)) {
-		tft.fillCircle(x, y, 2, TFT_DARKGREY);
+		tft.fillCircle(x, y, 2, TFT_LIGHTGREY);
+		countSimple++;
 	}
-	sprintf(buffer, " x=%5u  y=%5u     \n", x, y);
+	sprintf(buffer, " x=%5u  y=%5u     ", x, y);
 	tft.setCursor(centerBoxX, tft.getCursorY());
-	tft.print(buffer);
+	tft.println(buffer);
 
 	// Converted values (after average)
 	// if (touch::getTouchAverage(x, y)) {
 	if (touch::getTouchDebouncedZ(x, y)) {
-		tft.fillCircle(x, y, 2, TFT_WHITE);
+		tft.fillCircle(x, y, 2, TFT_GREEN);
+		countAdvanced++;
 	}
-	sprintf(buffer, "ax=%5u ay=%5u     \n", x, y);
+	sprintf(buffer, "ax=%5u ay=%5u     ", x, y);
 	tft.setCursor(centerBoxX, tft.getCursorY());
-	tft.print(buffer);
+	tft.println(buffer);
+
+	// Counters
+	sprintf(buffer, "cs=%5u ca=%5u     ", countSimple, countAdvanced);
+	tft.setCursor(centerBoxX, tft.getCursorY());
+	tft.println(buffer);
 
 	// Clearing canvas by pressing up-left corner of the center box
 	if (centerBoxX < x && x < centerBoxX + 40 && 
 		centerBoxY < y && y < centerBoxY + 40) {
 		tft.fillScreen(TFT_BLACK);
+		countSimple = 0;
+		countAdvanced = 0;
 	}
 }
