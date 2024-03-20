@@ -42,7 +42,13 @@ struct CalibrationData {
 };
 CalibrationData calibrationData;
 
-bool getTouch(uint16_t& x, uint16_t& y)
+inline void getRaw(uint16_t& x, uint16_t& y, uint16_t& z)
+{
+	tft.getTouchRaw(&x, &y);
+	z = tft.getTouchRawZ();
+}
+
+bool get(uint16_t& x, uint16_t& y)
 {
 	uint16_t z = tft.getTouchRawZ();
 	if (z >= zThreshold) {
@@ -53,14 +59,14 @@ bool getTouch(uint16_t& x, uint16_t& y)
 	return false;
 }
 
-bool getTouchDebouncedZ(uint16_t& xOut, uint16_t& yOut)
+bool getFilteredRaw(uint16_t& xOut, uint16_t& yOut, uint16_t& zOut)
 {
 	// Wait until pressure stops increasing to debounce pressure
 	uint16_t z = tft.getTouchRawZ();
 	uint16_t zPrevious;
 	do {
 		zPrevious = z;
-		delay(1);
+		delayMicroseconds(500);
 		z = tft.getTouchRawZ();
 	}
 	while (z > zPrevious);
@@ -71,8 +77,9 @@ bool getTouchDebouncedZ(uint16_t& xOut, uint16_t& yOut)
 	static uint16_t yPrevious;
 
 	// Eliminate more than deadband error touch position sudden runaways
-	constexpr auto deadbandErrorLimit = 30;
 	tft.getTouchRaw(&x, &y);
+	constexpr auto deadbandErrorLimit = 20;
+	//auto deadbandErrorLimit = (x >> 8) + (y >> 8) + 20;
 	bool tooFar = std::abs(x - xPrevious) > deadbandErrorLimit 
 	           || std::abs(y - yPrevious) > deadbandErrorLimit;
 	if (tooFar) {
@@ -85,42 +92,19 @@ bool getTouchDebouncedZ(uint16_t& xOut, uint16_t& yOut)
 		yPrevious = y = (y + yPrevious) / 2;
 	}
 
-	if (z >= zThreshold) {
-		calibrationData.convertRaw(x, y);
-		xOut = x;
-		yOut = y;
-		return true;
-	}
-	return false;
+	xOut = x;
+	yOut = y;
+	zOut = z;
+	return z >= zThreshold;
 }
 
-bool getTouchAverage(uint16_t& x, uint16_t& y, uint8_t samplesTwoExponent = 4)
+bool getFiltered(uint16_t& x, uint16_t& y)
 {
-	static uint16_t ax, ay, az;
-	static unsigned long lastTime;
-	uint16_t rx, ry, rz;
-	tft.getTouchRaw(&rx, &ry);
-	rz = tft.getTouchRawZ();
-
-	// TODO: make it distance based instead time 
-	unsigned long now = micros();
-	if (now - lastTime < 1'000) {
-		rx = (ax + rx) / 2;
-		ry = (ay + ry) / 2;
-		rz = (az + rz) / 2;
-	}
-	ax = rx;
-	ay = ry;
-	az = rz;
-	lastTime = now;
-
-	if (rz >= zThreshold) {
-		calibrationData.convertRaw(rx, ry);
-		x = rx;
-		y = ry;
-		return true;
-	}
-	return false;
+	uint16_t z;
+	bool got = getFilteredRaw(x, y, z);
+	if (!got) return false;
+	calibrationData.convertRaw(x, y);
+	return true;
 }
 
 void calibrate()
@@ -182,10 +166,7 @@ void calibrate()
 			bool updates = false;
 
 			uint16_t x, y, z;
-			z = tft.getTouchRawZ();
-			if (z >= zThreshold) {
-				tft.getTouchRaw(&x, &y);
-
+			if (getFilteredRaw(x, y, z)) {
 				if (corners[i].minX > x) {
 					corners[i].minX = x;
 					updates = true;
@@ -306,14 +287,13 @@ void loop()
 	tft.setCursor(centerBoxX, centerBoxY);
 
 	// Raw values
-	tft.getTouchRaw(&x, &y);
-	z = tft.getTouchRawZ();
+	touch::getRaw(x, y, z);
 	sprintf(buffer, "rx=%5u ry=%5u rz=%5u     ", x, y, z);
 	tft.setCursor(centerBoxX, tft.getCursorY());
 	tft.println(buffer);
 
 	// Converted values
-	if (touch::getTouch(x, y)) {
+	if (touch::get(x, y)) {
 		tft.fillCircle(x, y, 2, TFT_LIGHTGREY);
 		countSimple++;
 	}
@@ -323,7 +303,7 @@ void loop()
 
 	// Converted values (after average)
 	// if (touch::getTouchAverage(x, y)) {
-	if (touch::getTouchDebouncedZ(x, y)) {
+	if (touch::getFiltered(x, y)) {
 		tft.fillCircle(x, y, 2, TFT_GREEN);
 		countAdvanced++;
 	}
