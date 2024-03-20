@@ -41,6 +41,11 @@ Library [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) used to support the displ
 
 ### To-do
 
++ Consider integrating new touch related code to into TFT library (refactor & create pull request): 
+	+ Could reduce memory usage tiny bit of us (no unused built-in code & calibration)
+	+ Would require more testing, at least more rotations etc., but also other devices - which we don't have any at the moment.
+	+ By the way, library could use more examples with touch along the way, like saving calibration settings to EEPROM, hand-writing with smart lines, maybe simple paint etc.
+	+ Macros could be used to provide options (dynamic deadband error limit and other valid-touch filtering parameters).
 + Use C++17 (or better). Sadly, the [ArduinoCore-mbed](https://github.com/arduino/ArduinoCore-mbed) doesn't work with it, because `<Arduino.h>` has `abs` macro, and `chrono` (and other C++ headers) define them as templated functions which messes everything up. Solution would be to strategically put `#undef abs` in various places.
 
 
