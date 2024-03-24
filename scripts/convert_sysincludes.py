@@ -8,7 +8,10 @@ Import("env" ,"projenv") # type: ignore
 env, projenv, DefaultEnvironment = env, projenv, DefaultEnvironment # type: ignore
 
 platform = env.PioPlatform()
-FRAMEWORK_DIR = Path(platform.get_package_dir("framework-arduino-mbed"))
+if env.GetProjectOption("board_build.core") == 'earlephilhower':
+	FRAMEWORK_DIR = Path(platform.get_package_dir("framework-arduinopico"))
+else:
+	FRAMEWORK_DIR = Path(platform.get_package_dir("framework-arduino-mbed"))
 framework_includes = list()
 filtered_cpppath = list()
 

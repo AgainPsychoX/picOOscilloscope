@@ -1,8 +1,11 @@
-#include <cstdint>
-#include <cstddef>
+#pragma once
+#include "common.hpp"
 
 namespace touch
 {
+
+// TODO: Adjustable Z threshold? (detect idle state in the calibration)
+constexpr uint16_t zThreshold = 150;
 
 struct CalibrationData {
 	uint16_t screenWidth;
@@ -20,15 +23,19 @@ struct CalibrationData {
 	int snprintf(char* buffer, size_t maxLength);
 };
 
-/// Global calibration data, used for converting raw values to screen positions.
-extern CalibrationData calibrationData;
+/// Global pointer to calibration data, used for converting raw values
+/// to screen positions. Pointer used to allow using EEPROM easily.
+extern CalibrationData* calibrationData;
 
 /// Returns raw X, Y, Z values from the touch controller.
 void getRaw(uint16_t& x, uint16_t& y, uint16_t& z);
 
 /// Returns true and updates X & Y variables as screen position for the touch.
 /// Returns false if no touch is currently detected.
-bool get(uint16_t& x, uint16_t& y);
+bool get(uint16_t& xOut, uint16_t& yOut);
+
+/// Returns true if there is touch detected anywhere on the screen, false otherwise.
+bool anywhere();
 
 /// Returns true and updates X, Y & Z variables as raw values from the touch controller for the filtered, valid touch.
 /// Returns false if no valid touch is currently detected.
@@ -36,7 +43,7 @@ bool getFilteredRaw(uint16_t& xOut, uint16_t& yOut, uint16_t& zOut);
 
 /// Returns true and updates X, Y & Z variables as screen position for the filtered, valid touch.
 /// Returns false if no touch is currently detected.
-bool getFiltered(uint16_t& x, uint16_t& y);
+bool getFiltered(uint16_t& xOut, uint16_t& yOut);
 
 /// Performs user-assisted calibration. Blocks for a while, drawing arrows on the display,
 /// that user is supposed to touch. If successful returns true and updates the global calibration data static variable.

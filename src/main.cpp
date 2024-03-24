@@ -1,81 +1,100 @@
 #include <limits>
 #include <SPI.h>
 #include <TFT_eSPI.h>
+#include <EEPROM.h>
+#include <CRC32.h>
+#include "common.hpp"
 #include "touch.hpp"
+#include "ui.hpp"
 
 TFT_eSPI tft = TFT_eSPI();
 
-int16_t centerBoxX;
-int16_t centerBoxY;
+struct PersistedConfig
+{
+	////////////////////////////////////////
+	// 0x000 - 0x020: Checksum
+
+	uint8_t _emptyBeginPad[28];
+	uint32_t checksum;
+
+	uint32_t calculateChecksum() {
+		constexpr uint16_t prefixLength = offsetof(PersistedConfig, checksum) + sizeof(checksum);
+		return CRC32::calculate(reinterpret_cast<uint8_t*>(this) + prefixLength, sizeof(PersistedConfig) - prefixLength);
+	}
+
+	bool prepareForSave() {
+		uint32_t calculatedChecksum = calculateChecksum();
+		bool changed = checksum != calculatedChecksum;
+		checksum = calculatedChecksum;
+		return changed;
+	}
+
+	////////////////////////////////////////
+	// 0x020 - ...: Touch calibration data
+
+	touch::CalibrationData calibrationData;
+};
 
 void setup()
 {
 	Serial.begin(115200);
 	tft.init();
 	tft.setRotation(1);
+	tft.setCursor(20, 20);
+
+	bool startTouchCalibration = false;
+
+	EEPROM.begin(256);
+	PersistedConfig& config = *reinterpret_cast<PersistedConfig*>(EEPROM.getDataPtr());
+	touch::calibrationData = &config.calibrationData;
+	if (config.calculateChecksum() == config.checksum) {
+		// Allow for touch recalibration on start
+		if (touch::anywhere()) {
+			// TODO: LOG_DEBUG("Touch re-calibration requested");
+			startTouchCalibration = true;
+		}
+	}
+	else /* checksum miss-match */ {
+		// TODO: LOG_ERROR("Persisted config checksum miss-match, reseting to default")
+		startTouchCalibration = true;
+	}
+
+	if (startTouchCalibration) {
+		tft.fillScreen(TFT_BLACK);
+		tft.println("Touch points on the screen as indicated");
+		if (touch::calibrate()) {
+			config.prepareForSave();
+			EEPROM.commit();
+		}
+	}
 
 	tft.fillScreen(TFT_BLACK);
-	// tft.setCursor(20, 20);
-	// tft.setTextSize(1);
-	// tft.setTextColor(TFT_WHITE, TFT_BLACK);
-	// tft.println("Touch corners as indicated");
-	touch::calibrate();
 
-	char buffer[256];
-	touch::calibrationData.snprintf(buffer, sizeof(buffer));
-	Serial.println(buffer);
-
-	tft.fillScreen(TFT_BLACK);
-
-	centerBoxX = tft.width()/3;
-	centerBoxY = tft.height()/3;
+	ui::root.render();
 }
 
-uint16_t countSimple = 0;
-uint16_t countAdvanced = 0;
+millis_t pressLastTime = 0;
+constexpr millis_t notPressedTimeValue = -1;
+uint16_t pressX;
+uint16_t pressY;
 
 void loop()
 {
-	uint16_t x, y, z;
-
-	char buffer[64];
-	tft.setCursor(centerBoxX, centerBoxY);
-
-	// Raw values
-	touch::getRaw(x, y, z);
-	sprintf(buffer, "rx=%5u ry=%5u rz=%5u     ", x, y, z);
-	tft.setCursor(centerBoxX, tft.getCursorY());
-	tft.println(buffer);
-
-	// Converted values
-	if (touch::get(x, y)) {
-		tft.fillCircle(x, y, 2, TFT_LIGHTGREY);
-		countSimple++;
+	millis_t now = millis();
+	bool detected = touch::getFiltered(pressX, pressY);
+	bool wasReleased = now - pressLastTime > 50;
+	if (wasReleased) {
+		if (detected) {
+			ui::root.onPressDown(pressX, pressY);
+		}
+		else if (pressLastTime != notPressedTimeValue) {
+			pressLastTime = notPressedTimeValue;
+			ui::root.onPressUp(pressX, pressY);
+		}
 	}
-	sprintf(buffer, " x=%5u  y=%5u     ", x, y);
-	tft.setCursor(centerBoxX, tft.getCursorY());
-	tft.println(buffer);
-
-	// Converted values (after average)
-	// if (touch::getTouchAverage(x, y)) {
-	if (touch::getFiltered(x, y)) {
-		tft.fillCircle(x, y, 2, TFT_GREEN);
-		countAdvanced++;
+	if (detected) {
+		pressLastTime = now;
 	}
-	sprintf(buffer, "ax=%5u ay=%5u     ", x, y);
-	tft.setCursor(centerBoxX, tft.getCursorY());
-	tft.println(buffer);
 
-	// Counters
-	sprintf(buffer, "cs=%5u ca=%5u     ", countSimple, countAdvanced);
-	tft.setCursor(centerBoxX, tft.getCursorY());
-	tft.println(buffer);
-
-	// Clearing canvas by pressing up-left corner of the center box
-	if (centerBoxX < x && x < centerBoxX + 40 && 
-		centerBoxY < y && y < centerBoxY + 40) {
-		tft.fillScreen(TFT_BLACK);
-		countSimple = 0;
-		countAdvanced = 0;
-	}
+	// TODO: ui::root.update(); to update elements like text w/ values
 }

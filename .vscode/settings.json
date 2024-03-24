@@ -1,12 +1,17 @@
 {
 	"cSpell.words": [
+		"arduinopico",
 		"CCFLAGS",
 		"cpppath",
 		"DARKGREY",
 		"deadband",
+		"earlephilhower",
 		"isystem",
 		"mbed",
+		"NAND",
 		"projenv",
+		"tempdatum",
+		"textdatum",
 		"UART"
 	],
 	"files.associations": {
@@ -68,6 +73,9 @@
 		"streambuf": "cpp",
 		"thread": "cpp",
 		"cinttypes": "cpp",
-		"typeinfo": "cpp"
+		"typeinfo": "cpp",
+		"compare": "cpp",
+		"concepts": "cpp",
+		"numbers": "cpp"
 	}
 }

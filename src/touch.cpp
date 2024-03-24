@@ -7,9 +7,6 @@ extern TFT_eSPI tft; // from main
 
 namespace touch {
 
-// TODO: Adjustable Z threshold? (detect idle state in the calibration)
-constexpr uint16_t zThreshold = 150;
-
 void CalibrationData::convertRaw(uint16_t& x, uint16_t& y)
 {
 	if (rotated) {
@@ -30,7 +27,7 @@ int CalibrationData::snprintf(char* buffer, size_t maxLength) {
 	);
 }
 
-CalibrationData calibrationData;
+CalibrationData* calibrationData;
 
 void getRaw(uint16_t& x, uint16_t& y, uint16_t& z)
 {
@@ -38,15 +35,22 @@ void getRaw(uint16_t& x, uint16_t& y, uint16_t& z)
 	z = tft.getTouchRawZ();
 }
 
-bool get(uint16_t& x, uint16_t& y)
+bool get(uint16_t& xOut, uint16_t& yOut)
 {
-	uint16_t z = tft.getTouchRawZ();
+	uint16_t x, y, z = tft.getTouchRawZ();
 	if (z >= zThreshold) {
 		tft.getTouchRaw(&x, &y);
-		calibrationData.convertRaw(x, y);
+		calibrationData->convertRaw(x, y);
+		xOut = x;
+		yOut = y;
 		return true;
 	}
 	return false;
+}
+
+bool anywhere() {
+	uint16_t z = tft.getTouchRawZ();
+	return z >= zThreshold;
 }
 
 bool getFilteredRaw(uint16_t& xOut, uint16_t& yOut, uint16_t& zOut)
@@ -88,12 +92,14 @@ bool getFilteredRaw(uint16_t& xOut, uint16_t& yOut, uint16_t& zOut)
 	return z >= zThreshold;
 }
 
-bool getFiltered(uint16_t& x, uint16_t& y)
+bool getFiltered(uint16_t& xOut, uint16_t& yOut)
 {
-	uint16_t z;
+	uint16_t x, y, z;
 	bool got = getFilteredRaw(x, y, z);
 	if (!got) return false;
-	calibrationData.convertRaw(x, y);
+	calibrationData->convertRaw(x, y);
+	xOut = x;
+	yOut = y;
 	return true;
 }
 
@@ -195,45 +201,48 @@ bool calibrate()
 	}
 
 	// Use collected data to fill calibration data
-	calibrationData.screenWidth = w;
-	calibrationData.screenHeight = h;
+	if (calibrationData == nullptr) {
+		calibrationData = new CalibrationData();
+	}
+	calibrationData->screenWidth = w;
+	calibrationData->screenHeight = h;
 	auto xVerticalDifference = std::abs(corners[0].maxX - corners[1].maxX);
 	auto xHorizontalDifference = std::abs(corners[0].maxX - corners[2].maxX);
-	calibrationData.rotated = xVerticalDifference > xHorizontalDifference;
-	if (calibrationData.rotated) /* x is vertical, so y is horizontal */ {
+	calibrationData->rotated = xVerticalDifference > xHorizontalDifference;
+	if (calibrationData->rotated) /* x is vertical, so y is horizontal */ {
 		if (corners[0].maxX < corners[1].maxX) /* x grows towards bottom */ {
-			calibrationData.xOffset = corners[0].minX;
-			calibrationData.xScale = corners[0].minX - corners[1].maxX;
+			calibrationData->xOffset = corners[0].minX;
+			calibrationData->xScale = corners[0].minX - corners[1].maxX;
 		}
 		else /* x drops towards bottom */ {
-			calibrationData.xOffset = corners[0].maxX;
-			calibrationData.xScale = corners[1].minX - corners[0].maxX;
+			calibrationData->xOffset = corners[0].maxX;
+			calibrationData->xScale = corners[1].minX - corners[0].maxX;
 		}
 		if (corners[0].maxY < corners[2].maxY) /* y grows towards right */ {
-			calibrationData.yOffset = corners[0].minY;
-			calibrationData.yScale = corners[0].minY - corners[2].maxY;
+			calibrationData->yOffset = corners[0].minY;
+			calibrationData->yScale = corners[0].minY - corners[2].maxY;
 		}
 		else /* y drops towards right */ {
-			calibrationData.yOffset = corners[0].maxY;
-			calibrationData.yScale = corners[2].minY - corners[0].maxY;
+			calibrationData->yOffset = corners[0].maxY;
+			calibrationData->yScale = corners[2].minY - corners[0].maxY;
 		}
 	}
 	else /* x is horizontal, so y is vertical */ {
 		if (corners[0].maxX < corners[2].maxX) /* x grows towards right */ {
-			calibrationData.xOffset = corners[0].minX;
-			calibrationData.xScale = corners[0].minX - corners[2].maxX;
+			calibrationData->xOffset = corners[0].minX;
+			calibrationData->xScale = corners[0].minX - corners[2].maxX;
 		}
 		else /* x drops towards right */ {
-			calibrationData.xOffset = corners[0].maxX;
-			calibrationData.xScale = corners[2].minX - corners[0].maxX;
+			calibrationData->xOffset = corners[0].maxX;
+			calibrationData->xScale = corners[2].minX - corners[0].maxX;
 		}
 		if (corners[0].maxY < corners[1].maxY) /* y grows towards bottom */ {
-			calibrationData.yOffset = corners[0].minY;
-			calibrationData.yScale = corners[0].minY - corners[1].maxY;
+			calibrationData->yOffset = corners[0].minY;
+			calibrationData->yScale = corners[0].minY - corners[1].maxY;
 		}
 	else /* y drops towards bottom */ {
-			calibrationData.yOffset = corners[0].maxY;
-			calibrationData.yScale = corners[1].minY - corners[0].maxY;
+			calibrationData->yOffset = corners[0].maxY;
+			calibrationData->yScale = corners[1].minY - corners[0].maxY;
 		}
 	}
 
