@@ -70,6 +70,8 @@ void setup()
 
 	tft.fillScreen(TFT_BLACK);
 
+	tft.setTextFont(2);
+	tft.setTextColor(TFT_WHITE); // also makes font background transparent, avoiding filling
 	ui::root.render();
 }
 
@@ -81,8 +83,14 @@ uint16_t pressY;
 void loop()
 {
 	millis_t now = millis();
+
+	// Delay seems to be required before interfacing touch controller, I guess it's due to (shared) SPI speed changes.
+	// Without it last drawing operations can be glitch, red/blue dots appearing, often on strings drawing.
+	// TODO: report issue to TFT_eSPI and figure out better workaround, like flag & conditional waiting
+	delay(2); 
+
 	bool detected = touch::getFiltered(pressX, pressY);
-	bool wasReleased = now - pressLastTime > 50;
+	bool wasReleased = now - pressLastTime > 100;
 	if (wasReleased) {
 		if (detected) {
 			ui::root.onPressDown(pressX, pressY);

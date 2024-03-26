@@ -71,7 +71,9 @@ Library [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) was used to support the d
 	+ ...
 	+ Interesting read: https://www.tek.com/en/documents/primer/oscilloscope-systems-and-controls
 + User Interface outputs:
-	+ ???
+	+ Voltages (max/min/avg)
+	+ Frequency, Duty
+	+ ...
 + Watch https://www.youtube.com/watch?v=rDDiPzJpI18 , try to understand "unofficial" speeds
 + Read https://raspberrypi.stackexchange.com/questions/143394/improving-sampling-frequency-of-raspberry-pi-picos-adc-pin-to-sample-at-frequen
 + Consider external fast ADC 
