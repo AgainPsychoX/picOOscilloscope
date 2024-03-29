@@ -5,6 +5,12 @@
 
 extern TFT_eSPI tft; // from main
 
+/* Extra notes:
+	+ Seems like XPT2046 supports 16 or 24 clock cycles width, 8 bit or 12 bit accuracy. TFT_eSPI used 12 the latter.
+	+ `tft.getTouchRaw()` does 8 samples (4x Y, 4x Z). Why?
+	+ `tft.getTouchRawZ()` does 2 sample (Z1, Z2).
+*/
+
 namespace touch {
 
 void CalibrationData::convertRaw(uint16_t& x, uint16_t& y)
