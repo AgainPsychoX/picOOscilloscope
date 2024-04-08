@@ -44,6 +44,24 @@ Library [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) was used to support the d
 
 ## Notes
 
+### ADC
+
+Without overclocking, ADC uses USB PLL clock with is 48MHz. The ADC apparently needs 96 clock cycles for sample conversion. See RP2040 datasheet at chapter 4.9. for ADC details.
+
+Sample rate? Depending on frequency: 
++ fastest: 48MHz / 96 = 500 kS/s (without overclocking)
++ slowest: 48Mhz / 65536 = 732.421875 S/s
++ slowest rounded: 48Mhz / 48000 = 1000 S/s
+
+Time between samples?
++ fastest 1/500KHz = 2us (without overclocking)
++ slowest: 1/732.421875Hz = 0.00136533333s (a uneven bit over 1.3ms)
++ slowest rounded: 1/1000Hz = 1ms
+
+Total recording time? Assuming 40'000 samples:
++ fastest: 40'000 / 500KHz = 0.08s = 80ms
++ slowest: 40'000 / 1000Hz = 40s
+
 ### To-do
 
 + User Interface inputs:
@@ -75,7 +93,20 @@ Library [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) was used to support the d
 	+ Frequency, Duty
 	+ ...
 + Watch https://www.youtube.com/watch?v=rDDiPzJpI18 , try to understand "unofficial" speeds
++ Overclocking? 
+	+ https://forums.raspberrypi.com/viewtopic.php?t=340691
+	+ https://www.youtube.com/watch?v=G2BuoFNLoDM
+	+ `check_sys_clock_khz` https://github.com/raspberrypi/pico-sdk/blob/6a7db34ff63345a7badec79ebea3aaef1712f374/src/rp2_common/pico_stdlib/stdlib.c#L88
+	+ `set_sys_clock_pll` https://github.com/raspberrypi/pico-sdk/blob/6a7db34ff63345a7badec79ebea3aaef1712f374/src/rp2_common/pico_stdlib/stdlib.c#L48
+	+ `clock_configure` https://github.com/raspberrypi/pico-sdk/blob/master/src/rp2_common/hardware_clocks/clocks.c#L48
++ Generating reference signal
+	+ See datasheet 2.15.6.3. "Configuring a GPIO output clock"
+	+ Or use some timers based generator
+	+ Maybe PIO generator?
 + Read https://raspberrypi.stackexchange.com/questions/143394/improving-sampling-frequency-of-raspberry-pi-picos-adc-pin-to-sample-at-frequen
++ If ADC2 (free pin) & ADC3 (required board modding) were to be used, they would also share the SAR ADC unit so also the sample rate (max 500kS/s divided by 4; at least by official clock speeds)
++ If external ADCs were to be used, they would require separate mini-drivers to be written; Then, they should be aggregated into single controller. User would have control over sampling frequency (and other settings like clock) per ADC-unit (which can be shared by multiple channels). Changing the frequency or desired capture time window might require changes across all other ADC-units, to make it all fit with given memory.
+	+ Let's say we have 2 CH ADC (Pico) with max 500kS/s (split between channels) and 1 CH external ADC with max 1 MS/s, and total 100kB memory for sampling data. Memory should be split between ADCs to have them record the same window of time. When changing sampling rate, other ADC sampling rate should change proportionally OR the time windows need to shorten. Or simply show error unless user fix settings to have it fit.
 + Consider external fast ADC 
 	+ https://www.digikey.pl/en/products/filter/data-acquisition/analog-to-digital-converters-adc/700?s=N4IgjCBcoMwCwA4qgMZQGYEMA2BnApgDQgD2UA2uAGxhgDsdIxcVVAnAAxVPgcwcAmAKw84AtlRgRi4uGA5Ji9cUJg96dWTwEC6QodJADEcIQNEI6bYTyEMwbNqJgx9cbWbgT1mtme0cDpLaiHZOMqwM3DJ0XPLabHAuasR0rkLRIGl09DzW4hzqfPLmSkkccIxl-Krq5ULu1Rz6dWxgQorgHZqdBgIV4dT6-OoIcFzmALrEAA4ALlAgAMpzAE4AlgB2AOYgAL57xNzQIOsAJosAtPKG84s8cwCeM-iLmLhoB0A
 	+ https://www.mouser.pl/c/semiconductors/data-converter-ics/analog-to-digital-converters-adc/?sampling%20rate=10%20MS%2Fs~~10.4%20GS%2Fs&rp=semiconductors%2Fdata-converter-ics%2Fanalog-to-digital-converters-adc%7C~Sampling%20Rate&sort=sampling%20rate&qty=1
