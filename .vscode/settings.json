@@ -2,9 +2,11 @@
 	"cSpell.words": [
 		"arduinopico",
 		"CCFLAGS",
+		"clkdiv",
 		"cpppath",
 		"DARKGREY",
 		"deadband",
+		"DREQ",
 		"earlephilhower",
 		"idirafter",
 		"iprefix",

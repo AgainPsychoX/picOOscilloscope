@@ -40,7 +40,6 @@ static inline dma_channel_transfer_size sampleDMATransferDataSize()
 	}
 }
 
-
 ChannelSelection channelSelection;
 
 uint32_t clockBase()

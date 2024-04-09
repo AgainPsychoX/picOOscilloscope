@@ -64,6 +64,10 @@ Total recording time? Assuming 40'000 samples:
 
 ### To-do
 
+1. Przyciski
+2. Default wartości w `sampling` oraz ładowanie i zapisywanie na EEPROM
+3. Graf
+
 + User Interface inputs:
 	+ Channels: `CH1`, `CH2` (single graph), `CH1+2=` (separate graphs, stacked on top of each other), `CH1+2-` (both on single graph)
 	+ Time-base (multiple levels, +/- buttons) aka "horizontal scale"
