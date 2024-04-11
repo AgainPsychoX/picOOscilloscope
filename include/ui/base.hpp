@@ -27,7 +27,8 @@ struct Rectangle : public Element
 	/// @param hx Hit ray horizontal position on the screen
 	/// @param hy Hit ray vertical position on the screen
 	/// @return True if the button is hit, false otherwise.
-	bool isHit(uint16_t hx, uint16_t hy) {
+	bool isHit(uint16_t hx, uint16_t hy)
+	{
 		return x <= hx && hx < x + w && y <= hy && hy < y + h;
 	}
 };
@@ -47,15 +48,15 @@ struct Button : public Rectangle
 	virtual void action() = 0;
 
 	/// @brief Called when the button is pressed down.
-	/// @param x Horizontal position on the screen (not relative to the button)
-	/// @param y Vertical position on the screen (not relative to the button)
-	virtual void onPressDown(uint16_t x, uint16_t y);
+	/// @param hx Horizontal position on the screen (not relative to the button)
+	/// @param hy Vertical position on the screen (not relative to the button)
+	virtual void onPressDown(uint16_t hx, uint16_t hy);
 
 	/// @brief Called when press is removed from the button.
 	///	@note Use `isHit` to determine if last touch was still on the button.
-	/// @param x Horizontal position on the screen (not relative to the button)
-	/// @param y Vertical position on the screen (not relative to the button)
-	virtual void onPressUp(uint16_t x, uint16_t y);
+	/// @param hx Horizontal position on the screen (not relative to the button)
+	/// @param hy Vertical position on the screen (not relative to the button)
+	virtual void onPressUp(uint16_t hx, uint16_t hy);
 
 	// TODO: make button background change smoother (simple animation)
 };
@@ -71,11 +72,70 @@ struct TextButton : public Button
 		: Button(x, y, w, h), text(text)
 	{}
 
-	virtual void onPressDown(uint16_t x, uint16_t y) override;
 	virtual void render() override;
+	virtual void onPressDown(uint16_t hx, uint16_t hy) override;
 
 private:
 	void render(uint16_t backgroundColor);
+};
+
+////////////////////////////////////////////////////////////////////////////////
+
+/// Default button allowing to pick value from range using sub-buttons on sides.
+///
+/// User might want to use '-', '<', 'a', etc., so strings can be provided
+/// for left and right labels. Used string instead single char to support UTF8 
+/// with/or smooth fonts glyphs. Also it makes implementation easier.
+struct RangeHorizontalButton : public Button
+{
+	/// Optional (null to skip) label to be displayed above value string representation.
+	const char* centerLabel;
+
+	/// Label for the left side.
+	const char* leftLabel = "-";
+	/// Label for the right side.
+	const char* rightLabel = "+";
+	/// Font size to be used to draw the side labels. 0 to disable side labels.
+	uint8_t sidesFontSize = 1;
+	/// Padding, from border, to the side labels.
+	uint8_t sidesPadding = 4;
+	/// If true, sides labels will be vertically aligned with value string. 
+	/// If false, they will be vertically aligned in button center.
+	bool sidesAlignToValue = false;
+
+	RangeHorizontalButton(
+		uint16_t x, uint16_t y, uint16_t w, uint16_t h, const char* centerLabel,
+		const char* leftLabel = "-", const char* rightLabel = "+", 
+		uint8_t sidesFontSize = 255, // 255 (-1) defaults to 1, or 2 if center label is present
+		uint8_t sidesPadding = 255,  // 255 (-1) defaults to height divided by 4
+		bool sidesAlignToValue = false
+	) :
+		Button(x, y, w, h), centerLabel(centerLabel),
+		leftLabel(leftLabel), rightLabel(rightLabel), 
+		sidesFontSize(sidesFontSize == 255 ? (centerLabel ? 2 : 1) : sidesFontSize), 
+		sidesPadding(sidesPadding == 255 ? (h / 4) : sidesPadding), 
+		sidesAlignToValue(sidesAlignToValue)
+	{};
+
+	virtual void render() override;
+	virtual void action() override { /* allow to be omitted */ }
+	virtual void onPressDown(uint16_t hx, uint16_t hy) override;
+	virtual void onPressUp(uint16_t hx, uint16_t hy) override;
+
+	/// Returns string representation of the current value, to be displayed in the center of the button.
+	virtual const char* valueString() = 0;
+
+	/// Action to be executed on valid full press on left-side of the button.
+	virtual void onLeftAction() = 0;
+
+	/// Action to be executed on valid full press on right-side of the button.
+	virtual void onRightAction() = 0;
+
+protected:
+	bool pressStartedOnLeft;
+	inline bool isLeft(uint16_t hx)  { return hx < x + w / 2; }
+private:
+	void renderForeground();
 };
 
 ////////////////////////////////////////////////////////////////////////////////

@@ -17,6 +17,8 @@
 		"NAND",
 		"projenv",
 		"tempdatum",
+		"textbgcolor",
+		"textcolor",
 		"textdatum",
 		"UART"
 	],

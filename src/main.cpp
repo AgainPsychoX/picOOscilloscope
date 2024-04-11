@@ -5,6 +5,7 @@
 #include <CRC32.h>
 #include "common.hpp"
 #include "touch.hpp"
+#include "sampling.hpp"
 #include "ui/base.hpp"
 
 TFT_eSPI tft = TFT_eSPI();
@@ -37,6 +38,8 @@ struct PersistedConfig
 
 void setup()
 {
+	sampling::voltage::init();
+
 	Serial.begin(115200);
 	tft.init();
 	tft.setRotation(1);

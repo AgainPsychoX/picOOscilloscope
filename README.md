@@ -1,5 +1,7 @@
 
-# Project?
+# DIY Oscilloscope using Raspberry Pico and touch display
+
+<!-- TODO: short description, images, features -->
 
 
 
@@ -14,18 +16,39 @@ Touch chipset: [XPT2046](https://grobotronics.com/images/datasheets/xpt2046-data
 
 | Pin | GPIO | Notes                                                           |
 |-----|------|-----------------------------------------------------------------|
-|    1 |    0 | Reserved for UART0 TX                                          |
-|    2 |    1 | Reserved for UART0 RX                                          |
-|    3 |  GND | Ground                                                         |
-|    4 |    2 | SPI0 SCK, used for display & touch (shared)                    |
-|    5 |    3 | SPI0 TX (MOSI), used for display & touch (shared)              |
-|    6 |    4 | SPI0 RX (MISO), used for display & touch (shared)              |
-|    7 |    5 | Chip select for the display                                    |
-|    8 |  GND | Ground                                                         |
-|    9 |    6 | Reset for the display & touch (shared?)                        |
-|   10 |    7 | Register select (Data/Command) for the display                 |
-|   11 |    8 | Chip select for the touch                                      |
-|      |      |                                                                |
+|   1 |    0 | Reserved for UART0 TX                                          |
+|   2 |    1 | Reserved for UART0 RX                                          |
+|   3 |  GND | Ground                                                         |
+|   4 |    2 | SPI0 SCK, used for display & touch (shared)                    |
+|   5 |    3 | SPI0 TX (MOSI), used for display & touch (shared)              |
+|   6 |    4 | SPI0 RX (MISO), used for display & touch (shared)              |
+|   7 |    5 | Chip select for the display                                    |
+|   8 |  GND | Ground                                                         |
+|   9 |    6 | Reset for the display & touch (shared?)                        |
+|  10 |    7 | Register select (Data/Command) for the display                 |
+|  11 |    8 | Chip select for the touch                                      |
+| ... |      |                                                                |
+|  21 |   16 | S0 control for 74HC4052 for channel 2 (see below for details)  |
+|  22 |   17 | S1 control for 74HC4052 for channel 2 (see below for details)  |
+|  23 |  GND | Ground                                                         |
+|  24 |   18 | S0 control for 74HC4052 for channel 1 (see below for details)  |
+|  25 |   19 | S1 control for 74HC4052 for channel 1 (see below for details)  |
+|     |      |                                                                |
+
+### Analog front-end
+
+Based on [_Scoppy_](https://github.com/fhdm-dev/scoppy) (other closed source Pico oscilloscope) [analog front-end examples](https://oscilloscope.fhdm.xyz/wiki/Analog-Front-End-Examples), including [FSCOPE-500K Rev 4e](https://oshwlab.com/fruitloop57/fscope-250k5-v2_copy_copy_copy_copy).
+
+The front-end this project uses the more complex, dual channel with 4 voltage ranges, portection, 10X probe compatibility, input impedance of 1M||22pF, etc. [Simulation using CircuitJS](https://www.falstad.com/circuit/circuitjs.html?ctz=CQAgjCAMB0l3BWcMBsBmALAJhQdgWgJwAcYKCFI6ISCkNApgLRhgBQAhiE1pMSGl7dCKAUMIDoablmhIw8eFFiLcZXIUgYUO4nkLT6CxWwDmMvgK0ysGK3fqQ2YXFm4Is-LAlFMEuUW9RelxlESpuYOUkADUAewAbABcOUwY2AGN3TxAg7gwMLx8ocGZQxxV2LKY0YjtefiYCr0t6WSxmVm4YQgRCfs9BSF60UYgYOHYAd2yi3w8W-icZpsLc4tXFqDYVhdzLTf2ltgAnfLW8mrr1qOMTFdr6g8eb7YATbjJwQjcWQOK3G8GAAzDgAV2SbA+NQ8rxhbjAP1yICBoIhSTYACVuGhYYjfriEQUSvQMPQ0FISdEsTjrPjaXYwMTHCAyTI5FSYAhTp8AnDwnlyWgTNUXKIyPQmOEJSUMNBcJ1xlJ1IQApg+kzgpUdrzAgcxa9ljIARs8qNgjqeJZzcbRDajTwTb4DYLMrrwGBftLPSUwHJFcpJoHINN3TKWHyGtsVtKUJKBa0eVL-s6UyUfHAoQzvgTrHlASDwZDzH8c59xXzHJwQMRyUJ6UMQBIKYZkIoKsKyLjhbX-FhbFhylIQ+QXMMiPhcRA7pmVl8zW5XTNBK8V-adWu0KJawIt9GxK89q6zghiTu4-wd0ZeJmT8TWG4Lx63PQM7eaPe+U+DW1cPAeaeTz8E+Uakn+ThnE+jZ4G4jZGLOZbQdaQhOAA8lQrhiCEQiNuMZjgPecbgERMpVlkO5RkyQG+mUyidqOf4GKqBAIEqkxurG178KRwbwP0-ECYJ-TBmxIY6lRxFGMSoE0juK47qWLJsi2nJyDyO4PjWdYlKM-5nHkBq4ZWu7vgZxK4cyNBxhBrxyUIV7gDeNl5GsjZrNeCESVG+aJjMLlzFp+5mfUxQ-paLyXIShrhbCkV5sUDrCiFvj5glOoaURFG+YFUZydYRpPueliaQVxU+t+lY6hVoggdltXAchVYzBl9AaT6DoJo0AppTGabJlh2zof1jY1LB9b7nsEmsUSDg6kexSTcyc0+lGgFHBNPoGmtYUzGtO7TYFRoHZp23tWwAAyA2lp4jRfEYICggkADODCSIYF0DfOxDcVE9CPS9b1BcUFGhUtfmhZGALZbhPptS+H0HWsezuSU-2vSpTjQCAuAYAAEgAwmSHgAPpoDEaDEwAyuANA1uA0hgAAmkYzbIkz078EgCKMwioSBOAjMM-zCIAFrgEg9S5Mz+zYwIUsQLYcvSFgPO5BAdpS8r0h2MrYv9rT0gAKIADoABay7BICU0YDPIpT04OMiACCAB2bwAOIcEkDCGwkAC2xtPQggcoIHYDGycrse17Pv+4HwdPcQgdYBHUee97vsB0HgeEIHaCp276ex1nCcKIHGAF9HGdx09rBhynT2h5Hhcx5nYfh7X+eJ5XRdt7XFe1w3ufN1XxdhwPYBd2XJwAJIuwAbgwJzeycfeT-XEdz4vy9L2vE-h83HAJHEpiU1MACWSQZKba+l6HT0V7PC9Lyvfe4PHBdHyfZ+X9ft9h+-J6+dD7H1PhfK+N8a5gFLknJ6KcQHf3AX-KBpdc610-qAn+EC+79mTpAMOGDEG-0gVnXBcCB7wNdl-MBxCcENywB3YBVDMFIJIcnehXcHDG2TtwoBUheEtkDvgnhQiBH8KesIuBvDJGCIkbwlOoi87iMkQovh+clFdxUdIsRmj5HaI0YoqRhjZGSK5DowxZiDFyLwbwmc7Z8HWIkXIcxjjeC2PsYoQxbiw4ePgF4yRdj2z+Pcb4hxKiAmhLCfIiJoTgk+NCWwDACgrpfC3LdcU2M8aE0gCTMmFNqYOIbg4jGPC5FqKgKU2RJSpFlOqUUjRFSanFMpIUqxdTRHlLCc4zpQjul1IcYExQjSzE9LgQMyJjS3G1wmYU8ZoTJlzN8Qs+JSzZkrI8cs6ZCSgA) was created, for fun and exploration of the idea. Thanks to that, one can easily understand how the voltage is shifted. It uses two [74HC4052](https://www.sparkfun.com/datasheets/Components/General/74HC4052.pdf) dual 4-channel analog switch/(de)multiplexer; I even [recreated the 74HC4052 inside the simulation](https://github.com/pfalstad/circuitjs1/issues/76#issuecomment-2019215612) too (custom compontent). Basically, the compontent takes 2 digital inptus from the microproessing, which allow for selecting pair of resistors: for voltage division and shift.
+
+| Range ID | Min voltage | Max voltage | S1 | S0 | 
+|:--------:|:-----------:|:-----------:|:--:|:--:|
+|        0 | -5.872 V    | 5.917 V     | 0  | 0  |
+|        1 | -2.152 V    | 2.497 V     | 0  | 1  |
+|        2 | -1.120 V    | 0.949 V     | 1  | 0  |
+|        3 | -0.404 V    | 0.585 V     | 1  | 1  |
+
+<!-- TODO: consider adding resistor values to the table above -->
 
 
 
