@@ -1,6 +1,9 @@
 #include "ui/base.hpp"
 #include <TFT_eSPI.h>
 #include "sampling.hpp"
+#include "colors.hpp"
+
+using namespace colors;
 
 extern TFT_eSPI tft; // from main
 
@@ -280,4 +283,51 @@ RootGroup root {
 	*/
 };
 
+////////////////////////////////////////////////////////////////////////////////
+
+struct Graph : public Element
+{
+	static constexpr uint16_t x = 0;
+	static constexpr uint16_t y = 0;
+	static constexpr uint16_t width = 380;
+	static constexpr uint     widthDivisions = 10;
+	static constexpr uint16_t widthPixelsPerDivision = width / widthDivisions;
+	static constexpr uint16_t widthPixelWasted = width % widthDivisions;
+	static constexpr uint16_t height = 320;
+	static constexpr uint     heightDivisions = 10;
+	static constexpr uint16_t heightPixelsPerDivision = height / heightDivisions;
+	static constexpr uint16_t heightPixelWasted = height % heightDivisions;
+	static constexpr color_t primaryGridColor = to565(RGB { 88, 88, 88 });
+	static constexpr color_t secondaryGridColor = to565(RGB { 44, 44, 44 });
+
+	virtual void render() override
+	{
+		tft.fillRect(x, y, width, height, TFT_BLACK);
+		renderLines();
+	}
+
+	void renderLines()
+	{
+		uint16_t lineX = x;
+		for (uint i = 0; i < widthDivisions; i++) {
+			bool isPrimary = i == widthDivisions / 2;
+			tft.drawFastVLine(lineX, y, height, 
+				isPrimary ? primaryGridColor : secondaryGridColor);
+			lineX += widthPixelsPerDivision;
+		}
+		uint16_t lineY = y;
+		for (uint i = 0; i < heightDivisions; i++) {
+			bool isPrimary = i == heightDivisions / 2;
+			tft.drawFastHLine(x, lineY, width,
+				isPrimary ? primaryGridColor : secondaryGridColor);
+			lineY += heightPixelsPerDivision;
+		}
+	}
+};
+
+// TODO: better way to share it to main, maybe go fix TODO in Group constructor
+Graph graph_;
+Element& graph = graph_;
+
 }
+

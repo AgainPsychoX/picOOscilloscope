@@ -36,6 +36,10 @@ struct PersistedConfig
 	touch::CalibrationData calibrationData;
 };
 
+namespace ui {
+	extern Element& graph; // TODO: (see TODO in app.cpp)
+}
+
 void setup()
 {
 	sampling::voltage::init();
@@ -76,6 +80,7 @@ void setup()
 	tft.setTextFont(2);
 	tft.setTextColor(TFT_WHITE); // also makes font background transparent, avoiding filling
 	ui::root.render();
+	ui::graph.render();
 }
 
 millis_t pressLastTime = 0;
