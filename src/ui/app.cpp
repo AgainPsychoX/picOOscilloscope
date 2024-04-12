@@ -285,7 +285,7 @@ RootGroup root {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct Graph : public Element
+struct SingleGraph : public Element
 {
 	static constexpr uint16_t x = 0;
 	static constexpr uint16_t y = 0;
@@ -323,11 +323,66 @@ struct Graph : public Element
 			lineY += heightPixelsPerDivision;
 		}
 	}
-};
+} singleGraph;
+
+////////////////////////////////////////////////////////////////////////////////
+
+struct SplitGraph : public Element
+{
+	static constexpr uint16_t x = 0;
+	static constexpr uint16_t y = 0;
+	static constexpr uint16_t width = 380;
+	static constexpr uint     widthDivisions = 10;
+	static constexpr uint16_t widthPixelsPerDivision = width / widthDivisions;
+	static constexpr uint16_t widthPixelWasted = width % widthDivisions;
+	static constexpr uint16_t totalHeight = 320;
+	static constexpr uint16_t gap = 0;
+	static constexpr uint16_t sliceHeight = (totalHeight - gap) / 2;
+	static constexpr uint     heightDivisions = 10;
+	static constexpr uint16_t heightPixelsPerDivision = sliceHeight / heightDivisions;
+	static constexpr uint16_t heightPixelWasted = sliceHeight % heightDivisions;
+	static constexpr uint16_t yFirst = y;
+	static constexpr uint16_t ySecond = y + sliceHeight + gap;
+	static constexpr uint16_t yGap = y + sliceHeight + gap / 2;
+	static constexpr color_t gapLineColor = TFT_LIGHTGREY;
+	static constexpr color_t primaryGridColor = to565(RGB { 88, 88, 88 });
+	static constexpr color_t secondaryGridColor = to565(RGB { 44, 44, 44 });
+
+	virtual void render() override
+	{
+		tft.fillRect(x, y, width, totalHeight, TFT_BLACK);
+		renderLines();
+	}
+
+	void renderLines()
+	{
+		renderLinesPerSplit(yFirst);
+		renderLinesPerSplit(ySecond);
+		tft.drawFastHLine(x, yGap, width, gapLineColor);
+	}
+
+	void renderLinesPerSplit(uint16_t y)
+	{
+		using namespace sampling;
+		uint16_t lineX = x;
+		for (uint i = 0; i < widthDivisions; i++) {
+			bool isPrimary = i == widthDivisions / 2;
+			tft.drawFastVLine(lineX, y, sliceHeight, 
+				isPrimary ? primaryGridColor : secondaryGridColor);
+			lineX += widthPixelsPerDivision;
+		}
+		uint16_t lineY = y;
+		for (uint i = 0; i < heightDivisions; i++) {
+			bool isPrimary = i == heightDivisions / 2;
+			tft.drawFastHLine(x, lineY, width,
+				isPrimary ? primaryGridColor : secondaryGridColor);
+			lineY += heightPixelsPerDivision;
+		}
+	}
+} splitGraph;
 
 // TODO: better way to share it to main, maybe go fix TODO in Group constructor
-Graph graph_;
-Element& graph = graph_;
+Element& graph = splitGraph;
 
 }
 
