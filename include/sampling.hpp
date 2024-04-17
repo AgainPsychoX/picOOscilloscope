@@ -28,8 +28,8 @@ struct Range
 
 struct Shifter
 {
-	uint8_t s0Pin;
-	uint8_t s1Pin;
+	const uint8_t s0Pin;
+	const uint8_t s1Pin;
 
 	Shifter(uint8_t s0Pin, uint8_t s1Pin) : s0Pin(s0Pin), s1Pin(s1Pin) {}
 
@@ -65,6 +65,7 @@ public:
 
 	constexpr bool first() const { return value & OnlyFirst; }
 	constexpr bool second() const { return value & OnlySecond; }
+	constexpr bool single() const { return first() ^ second(); }
 	constexpr bool both() const { return value & BothSeparate; }
 	constexpr bool together() const { return value & 0b10000; }
 

@@ -44,7 +44,7 @@ void setup()
 {
 	sampling::voltage::init();
 
-	Serial.begin(115200);
+	Serial.begin(921600);
 	tft.init();
 	tft.setRotation(1);
 	tft.setCursor(20, 20);
@@ -113,4 +113,5 @@ void loop()
 	}
 
 	// TODO: ui::root.update(); to update elements like text w/ values
+	ui::graph.partialRender();
 }

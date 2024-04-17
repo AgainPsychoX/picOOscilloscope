@@ -16,10 +16,12 @@
 		"mbed",
 		"NAND",
 		"projenv",
+		"Renderable",
 		"tempdatum",
 		"textbgcolor",
 		"textcolor",
 		"textdatum",
+		"textfont",
 		"UART"
 	],
 	"files.associations": {
@@ -84,6 +86,7 @@
 		"typeinfo": "cpp",
 		"compare": "cpp",
 		"concepts": "cpp",
-		"numbers": "cpp"
+		"numbers": "cpp",
+		"bitset": "cpp"
 	}
 }

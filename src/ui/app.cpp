@@ -1,4 +1,5 @@
 #include "ui/base.hpp"
+#include <bitset>
 #include <TFT_eSPI.h>
 #include "sampling.hpp"
 #include "colors.hpp"
@@ -9,11 +10,21 @@ extern TFT_eSPI tft; // from main
 
 namespace ui {
 
+constexpr color_t channel1Color = to565(RGB { 255, 255, 0 } /* yellow */);
+constexpr color_t channel2Color = to565(RGB { 180, 255, 0 } /* green-yellow */);
+constexpr color_t centerLineColor = to565(RGB { 127, 127, 127 });
+constexpr color_t helperLineColor = to565(RGB { 63, 63, 63 });
+constexpr color_t helperLineVoltageLabelColor = to565(RGB { 95, 95, 95 });
+
+#define GRAPHS_VOLTAGE_LABELS_EVEN_WITHOUT_V 1
+
 ////////////////////////////////////////////////////////////////////////////////
 // Forward declarations to allow interleaving logic
 
 struct ChannelButton;
-struct VoltageShifterButton;
+struct VoltageShifterInput;
+
+void updateGraphsByVoltageShiftersInput();
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -102,11 +113,10 @@ struct ChannelButton : public Button
 				break;
 		}
 
-		updateVoltageShifterButton();
-		// FIXME: ^ incomplete type... split into hpp/cpp's inside app folder? 
+		updateVoltageShifterInput();
 	}
 
-	void updateVoltageShifterButton();
+	void updateVoltageShifterInput();
 
 	virtual void onPressDown(uint16_t hx, uint16_t hy) override
 	{
@@ -130,15 +140,17 @@ private:
 		// TODO: Polish ó and ł, maybe by overlapping: o' and -l, or custom font
 
 		tft.setTextDatum(BC_DATUM);
-		if (!sampling::channelSelection.first())
-			tft.setTextColor(TFT_DARKGREY, backgroundColor);
+		color_t c;
+
+		c = sampling::channelSelection.first() ? channel1Color :  TFT_DARKGREY;
+		tft.setTextColor(c, backgroundColor);
 		tft.drawString("CH1", x + w / 4, y + h - 1);
 
-		auto c = sampling::channelSelection.together() ? TFT_WHITE :  TFT_DARKGREY;
+		c = sampling::channelSelection.together() ? TFT_WHITE :  TFT_DARKGREY;
 		tft.setTextColor(c, backgroundColor);
 		tft.drawString("+", x + w / 2, y + h - 1);
 
-		c = sampling::channelSelection.second() ? TFT_WHITE :  TFT_DARKGREY;
+		c = sampling::channelSelection.second() ? channel2Color :  TFT_DARKGREY;
 		tft.setTextColor(c, backgroundColor);
 		tft.drawString("CH2", x + w - w / 4, y + h - 1);
 	}
@@ -146,11 +158,11 @@ private:
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct VoltageShifterButton : public RangeHorizontalButton
+struct VoltageShifterInput : public RangeHorizontalInput
 {
-	VoltageShifterButton()
-		: RangeHorizontalButton(
-			/*position & size*/ 380, 40,  100, 40, 
+	VoltageShifterInput()
+		: RangeHorizontalInput(
+			/*position & size*/ 380, 40, 100, 40, 
 			/*labels*/ "Napiecie", "<", ">", // TODO: Polish ę
 			/*sides labels font*/1, 
 			/*padding*/ 4, /*align*/ true)
@@ -212,10 +224,10 @@ protected:
 				return; // do nothing
 			case ChannelSelection::OnlyFirst:
 				voltage::shifter[0].set(voltage::shifter[0].get() + direction);
-				return;
+				break;
 			case ChannelSelection::OnlySecond:
 				voltage::shifter[1].set(voltage::shifter[1].get() + direction);
-				return;
+				break;
 			case ChannelSelection::BothSeparate:
 			case ChannelSelection::BothTogether:
 				auto a = voltage::shifter[0].get();
@@ -232,27 +244,72 @@ protected:
 					voltage::shifter[0].set(safe);
 					voltage::shifter[1].set(safe);
 				}
-				return;
+				break;
 		}
+		updateGraphsByVoltageShiftersInput();
 	}
-} voltageShifterButton;
+} voltageShifterInput;
+
+////////////////////////////////////////////////////////////////////////////////
+
+uint16_t timeBaseIntegers[] {
+	1, 2, 4, 5, 8, 10, 16, 20, 32, 40, 50, 64, 80, 100, 128, 160, 200, 256, 320, 400, 500, 512, 800
+	//	1	2	4		8		16		32			64			128			256				512
+	//				5							50		 								500
+	//						10		20		40			80			160			320
+	//														100			200			400		800
+};
+
+struct TimeBaseInput : public RangeHorizontalInput
+{
+	TimeBaseInput()
+		: RangeHorizontalInput(
+			/*position & size*/ 380, 80, 100, 40, 
+			/*labels*/ "Podstawa czasu", "-", "+", 
+			/*sides labels font*/1, 
+			/*padding*/ 4, /*align*/ true)
+	{}
+
+	char buffer[16];
+
+	virtual const char* valueString() override
+	{
+		using namespace sampling;
+
+		snprintf(buffer, sizeof(buffer), "%u %s", 
+			2, 
+			"us");
+
+		return buffer;
+	}
+
+	virtual void onLeftAction() override
+	{
+		// TODO: ...
+	}
+
+	virtual void onRightAction() override
+	{
+		// TODO: ...
+	}
+} timeBaseInput;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Extra glue
 
-void ChannelButton::updateVoltageShifterButton()
+void ChannelButton::updateVoltageShifterInput()
 {
-	voltageShifterButton.render();
+	voltageShifterInput.render();
 }
 
 ////////////////////////////////////////////////////////////////////////////////
 
-// TODO: hit box in the middle
-
 RootGroup root {
 	&channelButton,
-	&voltageShifterButton,
-	new TwoLineDummyButton(380, 80,  100, 40, "Podstawa czasu", " -   2 us   + "),
+	&voltageShifterInput,
+	&timeBaseInput,
+	// &timeOffsetInput,
+	// new TwoLineDummyButton(380, 80,  100, 40, "Podstawa czasu", " -   2 us   + "),
 	new TwoLineDummyButton(380, 120, 100, 40,  "Przesuniecie" , " -   30 ms  + "),
 	new TwoLineDummyButton(380, 160, 100, 40, "Tryb", " <  Ciagly  > "),
 	new TwoLineDummyButton(380, 200, 100, 40, "Trigger type", "_/ \\_ _||_ |_|"),
@@ -285,104 +342,381 @@ RootGroup root {
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct SingleGraph : public Element
+/*
+	Problem: to draw new graph we need clear previous one.
+
+	Solutions:
+	1. full fill & render
+		- will cause flickering to re-render all the lines
+		- can make touch a bit less responsible
+	2. remembering which pixels were changed
+		- requires memory to keep each pixel position - we can assume one per 
+			column per channel
+		- requires extra logic to handle grid lines
+		- requires extra logic to handle vertical lines 
+			which happen if value changes fast (quite often); 
+			also makes it harder to use anti-aliased lines
+	3. splitting the area to cells and remembering which cells are dirty
+		- cell consist of vertical and horizontal line, and the area they mark out
+		- can make use of bitset to keep track cells dirty state
+		- cells need to be divided gracefully
+
+	I decided to go with using cells approach.
+*/
+
+struct Graph : public Element
 {
-	static constexpr uint16_t x = 0;
-	static constexpr uint16_t y = 0;
-	static constexpr uint16_t width = 380;
-	static constexpr uint     widthDivisions = 10;
-	static constexpr uint16_t widthPixelsPerDivision = width / widthDivisions;
-	static constexpr uint16_t widthPixelWasted = width % widthDivisions;
-	static constexpr uint16_t height = 320;
-	static constexpr uint     heightDivisions = 10;
-	static constexpr uint16_t heightPixelsPerDivision = height / heightDivisions;
-	static constexpr uint16_t heightPixelWasted = height % heightDivisions;
-	static constexpr color_t primaryGridColor = to565(RGB { 88, 88, 88 });
-	static constexpr color_t secondaryGridColor = to565(RGB { 44, 44, 44 });
+	uint16_t x;
+	uint16_t y;
+	uint16_t width;
+	uint16_t height;
+
+	static constexpr auto maxDivisionsPerDim = 12;
+	uint8_t widthDivisions;
+	uint8_t heightDivisions;
+	uint8_t cellWidth;
+	uint8_t cellHeight;
+	uint8_t halfHeightWasted;
+	uint16_t labelCenterX;
+
+	// TODO: support asymmetric value ranges
+	// TODO: support width waste 
+
+	void setWidthDivisions(uint8_t number)
+	{
+		widthDivisions = number;
+		cellWidth = width / widthDivisions;
+		labelCenterX = x + cellWidth / 2;
+		fullyDirty = true;
+	}
+
+	void setHeightDivisions(uint8_t number)
+	{
+		heightDivisions = number;
+		cellHeight = height / heightDivisions;
+		halfHeightWasted = height % heightDivisions / 2;
+		fullyDirty = true;
+	}
+
+	Graph(
+		uint16_t x, uint16_t y, uint16_t width, uint16_t height,
+		uint8_t widthDivisions, uint8_t heightDivisions
+	) :
+		x(x), y(y), width(width), height(height),
+		widthDivisions(widthDivisions), heightDivisions(heightDivisions), 
+		cellWidth(width / widthDivisions), cellHeight(height / heightDivisions),
+		halfHeightWasted(height % heightDivisions / 2),
+		labelCenterX(x + cellWidth / 2)
+	{
+		assert(widthDivisions <= maxDivisionsPerDim);
+		assert(heightDivisions <= maxDivisionsPerDim);
+	}
+
+	std::bitset<maxDivisionsPerDim * maxDivisionsPerDim> cellDirtyBitset;
+	bool fullyDirty = true;
+
+	inline bool isCellDirty(uint8_t cx, uint8_t cy)
+	{
+		return cellDirtyBitset[cx * maxDivisionsPerDim + cy];
+	}
+
+	inline void markCellDirty(uint8_t cx, uint8_t cy)
+	{
+		cellDirtyBitset[cx * maxDivisionsPerDim + cy] = true;
+	}
+
+	inline void markCellFresh(uint8_t cx, uint8_t cy)
+	{
+		cellDirtyBitset[cx * maxDivisionsPerDim + cy] = false;
+	}
 
 	virtual void render() override
 	{
-		tft.fillRect(x, y, width, height, TFT_BLACK);
-		renderLines();
+		// Clear and draw extra line parts in wasted space/padding
+		if (halfHeightWasted) {
+			uint16_t yBottom = y + height - halfHeightWasted;
+			tft.fillRect(x, y, width, halfHeightWasted, TFT_BLACK);
+			tft.fillRect(x, yBottom, width, halfHeightWasted, TFT_BLACK);
+
+			uint_fast16_t sx = x;
+			for (uint_fast8_t cx = 0; cx < widthDivisions; cx++) {
+				bool center = cx == widthDivisions / 2;
+				tft.drawFastVLine(sx, y, halfHeightWasted,
+					center ? centerLineColor : helperLineColor);
+				tft.drawFastVLine(sx, yBottom, halfHeightWasted,
+					center ? centerLineColor : helperLineColor);
+				sx += cellWidth;
+			}
+		}
+
+		// auto us_start = to_us_since_boot(get_absolute_time());
+
+		tft.setTextDatum(CC_DATUM);
+		tft.setTextColor(helperLineVoltageLabelColor, TFT_BLACK);
+
+		uint_fast16_t sy = y + halfHeightWasted;
+		for (uint_fast8_t cy = 0; cy < heightDivisions; cy++) {
+			uint_fast16_t sx = x;
+			for (uint_fast8_t cx = 0; cx < widthDivisions; cx++) {
+				drawCell(cx, cy, sx, sy);
+				sx += cellWidth;
+			}
+			sy += cellHeight;
+		}
+
+		cellDirtyBitset.reset(/*all*/);
+		fullyDirty = false;
+
+		// auto us_end = to_us_since_boot(get_absolute_time());
+		// Serial.printf("Graph render took %llu\n", us_end - us_start);
 	}
 
-	void renderLines()
+	virtual void partialRender() override
 	{
-		uint16_t lineX = x;
-		for (uint i = 0; i < widthDivisions; i++) {
-			bool isPrimary = i == widthDivisions / 2;
-			tft.drawFastVLine(lineX, y, height, 
-				isPrimary ? primaryGridColor : secondaryGridColor);
-			lineX += widthPixelsPerDivision;
+		if (fullyDirty)
+			return render();
+
+		// auto us_start = to_us_since_boot(get_absolute_time());
+		// unsigned int cellsCount = 0;
+
+		tft.setTextDatum(CC_DATUM);
+		tft.setTextColor(helperLineVoltageLabelColor, TFT_BLACK);
+
+		uint_fast16_t sy = y + halfHeightWasted;
+		for (uint_fast8_t cy = 0; cy < heightDivisions; cy++) {
+			uint_fast16_t sx = x;
+			for (uint_fast8_t cx = 0; cx < widthDivisions; cx++) {
+				if (isCellDirty(cx, cy)) {
+					drawCell(cx, cy, sx, sy);
+					markCellFresh(cx, cy);
+					// cellsCount++;
+				}
+				sx += cellWidth;
+			}
+			sy += cellHeight;
 		}
-		uint16_t lineY = y;
-		for (uint i = 0; i < heightDivisions; i++) {
-			bool isPrimary = i == heightDivisions / 2;
-			tft.drawFastHLine(x, lineY, width,
-				isPrimary ? primaryGridColor : secondaryGridColor);
-			lineY += heightPixelsPerDivision;
+
+		// TODO: clear debug logging as trace log
+		// auto us_end = to_us_since_boot(get_absolute_time());
+		// Serial.printf("Graph partialRender with %u cells took %llu\n", 
+		// 	cellsCount, us_end - us_start);
+	}
+
+	inline void drawCell(uint8_t cx, uint8_t cy, uint16_t sx, uint16_t sy)
+	{
+		// TODO: consider __attribute__((always_inline)) 
+		// TODO: use lower-level API: startWrite, pushBlock, endWrite
+		tft.drawFastHLine(sx, sy, cellWidth, 
+			cy == heightDivisions / 2 ? centerLineColor : helperLineColor);
+		tft.drawFastVLine(sx, sy, cellHeight,
+			cx == widthDivisions / 2 ? centerLineColor : helperLineColor);
+		tft.fillRect(sx + 1, sy + 1, cellWidth - 1, cellHeight - 1, TFT_BLACK);
+		if (cx == 0) [[unlikely]] {
+			const char* str = getYLabel(cy);
+			if (str) [[likely]] {
+				tft.drawString(str, labelCenterX, sy, 1);
+			}
+		}
+		if (cy == heightDivisions - 1) {
+			uint16_t yLast = sy + cellHeight;
+			if (!halfHeightWasted) yLast -= 1;
+			tft.drawFastHLine(sx, yLast, cellWidth, helperLineColor);
+			if (cx == 0) {
+				const char* str = getYLabel(heightDivisions);
+				if (str) [[likely]] {
+					tft.drawString(str, labelCenterX, yLast, 1);
+				}
+			}
 		}
 	}
-} singleGraph;
+
+	virtual const char* getYLabel(uint8_t cy)
+	{
+		(void) cy; // unused in base
+		return nullptr;
+	}
+
+	void drawGraph()
+	{
+		/*
+			TODO:
+			1. get sampling window start position (a bit before the trigger)
+			2. calculate graphing window start position to match center to trigger point;
+				factor in the offset (in time, set by user)
+			3. graph next points, scaling from U8/U12 to height on graph
+
+			size_t numberOfSamples = sampling::numberOfSamples();
+			
+			// Graphing window offset in samples
+			auto graphingWindowOffsetInSamples = timeToSamplesNumber(widthDivisions / 2 * timeBase);
+
+			// Need to limit graphing start position OR skip drawing for a bit
+			#ifdef GRAPHING_LIMIT_TIME_OFFSET
+			if (graphingWindowOffsetInSamples > sampling::numberOfPreTriggerSamples) {
+				graphingWindowOffsetInSamples = sampling::numberOfPreTriggerSamples;
+			}
+			uint16_t x = 0;;
+			#else
+			uint16_t x = ?;
+			// TODO: ... 
+			#endif
+			switch (sampling::resolution) {
+				default:
+				case Resolution::U8: {
+					const uint8_t* p = sampling::windowStart;
+					p -= graphingWindowOffsetInSamples;
+					for (size_t i = 0; i < numberOfSamples; i++) {
+						// TODO: break if end of graphing width
+
+						// drawPoint()
+
+						p++; // TODO: warp around
+					}
+					break;
+				}
+				case Resolution::U12: {
+					// TODO: ...
+					break;
+				}
+			}
+		*/
+	}
+};
+
+struct VoltageGraph : public Graph
+{
+	VoltageGraph(
+		uint16_t x, uint16_t y, uint16_t width, uint16_t height,
+		uint8_t widthDivisions, uint8_t heightDivisions
+	) 
+		: Graph(x, y, width, height, widthDivisions, heightDivisions)
+	{}
+
+	uint16_t yValueStep; // in mV
+
+	virtual const char* getYLabel(uint8_t cy)
+	{
+		auto foo = heightDivisions / 2 - cy;
+		if (foo == 0) {
+			return nullptr;
+		}
+		int16_t mV = yValueStep * foo;
+		static char buffer[8];
+		int w = sprintf(buffer, "%+.4d", mV);
+		buffer[w - 1] = buffer[w - 2];
+		buffer[w - 2] = buffer[w - 3];
+		buffer[w - 3] = '.';
+		buffer[5] = 0;
+		// TODO: clear debug logging as trace log
+		// Serial.printf("cy=%u mV=%d buffer='%s'\n", cy, mV, buffer);
+		return buffer;
+	}
+};
+
+VoltageGraph singleGraph { 0, 0, 380, 320, 10, 12 };
+VoltageGraph firstSplitGraph { 0, 0, 380, 160, 10, 12 };
+VoltageGraph secondSplitGraph { 0, 160, 380, 160, 10, 12 };
+
+// TODO: union? single graph OR 2x split graphs
+
+static const uint16_t yValueStepByRangeId[] = { 1000, 500, 250, 100 };
+static const uint16_t heightDivisionsByRangeId[] = { 12, 10, 10, 12 };
+
+inline bool isSingleGraphActive()
+{
+	using namespace sampling;
+	return channelSelection.single() || channelSelection.together();
+}
+
+/// Setups single graph for properly displaying current voltage range etc.
+void setupSingleGraph()
+{
+	using namespace sampling;
+	uint8_t widest = 3; // starts with 3 which is narrowest range
+	if (channelSelection.first()) {
+		widest = voltage::shifter[0].get().id;
+	}
+	if (channelSelection.second()) {
+		widest = std::min(widest, voltage::shifter[1].get().id);
+	}
+	singleGraph.setHeightDivisions(heightDivisionsByRangeId[widest]);
+	singleGraph.yValueStep = yValueStepByRangeId[widest];
+}
+
+/// Setups split graphs for properly displaying current voltage range etc.
+void setupSplitGraphs()
+{
+	using namespace sampling;
+	uint8_t id = voltage::shifter[0].get().id;
+	firstSplitGraph.setHeightDivisions(heightDivisionsByRangeId[id] / 2);
+	firstSplitGraph.yValueStep = yValueStepByRangeId[id] * 2;
+	/*****/ id = voltage::shifter[1].get().id;
+	secondSplitGraph.setHeightDivisions(heightDivisionsByRangeId[id] / 2);
+	secondSplitGraph.yValueStep = yValueStepByRangeId[id] * 2;
+}
+
+/// Glue function to update graphs after voltage shifter changes.
+void updateGraphsByVoltageShiftersInput()
+{
+	if (isSingleGraphActive()) {
+		setupSingleGraph();
+	}
+	else {
+		setupSplitGraphs();
+	}
+}
 
 ////////////////////////////////////////////////////////////////////////////////
 
-struct SplitGraph : public Element
+struct GraphDispatch : public Element
 {
-	static constexpr uint16_t x = 0;
-	static constexpr uint16_t y = 0;
-	static constexpr uint16_t width = 380;
-	static constexpr uint     widthDivisions = 10;
-	static constexpr uint16_t widthPixelsPerDivision = width / widthDivisions;
-	static constexpr uint16_t widthPixelWasted = width % widthDivisions;
-	static constexpr uint16_t totalHeight = 320;
-	static constexpr uint16_t gap = 0;
-	static constexpr uint16_t sliceHeight = (totalHeight - gap) / 2;
-	static constexpr uint     heightDivisions = 10;
-	static constexpr uint16_t heightPixelsPerDivision = sliceHeight / heightDivisions;
-	static constexpr uint16_t heightPixelWasted = sliceHeight % heightDivisions;
-	static constexpr uint16_t yFirst = y;
-	static constexpr uint16_t ySecond = y + sliceHeight + gap;
-	static constexpr uint16_t yGap = y + sliceHeight + gap / 2;
-	static constexpr color_t gapLineColor = TFT_LIGHTGREY;
-	static constexpr color_t primaryGridColor = to565(RGB { 88, 88, 88 });
-	static constexpr color_t secondaryGridColor = to565(RGB { 44, 44, 44 });
+	bool lastWasSingle;
 
 	virtual void render() override
 	{
-		tft.fillRect(x, y, width, totalHeight, TFT_BLACK);
-		renderLines();
+		using namespace sampling;
+		if (isSingleGraphActive()) {
+			setupSingleGraph();
+			singleGraph.render();
+			lastWasSingle = true;
+		}
+		else /* both & separate */ {
+			setupSplitGraphs();
+			firstSplitGraph.render();
+			secondSplitGraph.render();
+			lastWasSingle = false;
+		}
 	}
 
-	void renderLines()
-	{
-		renderLinesPerSplit(yFirst);
-		renderLinesPerSplit(ySecond);
-		tft.drawFastHLine(x, yGap, width, gapLineColor);
-	}
-
-	void renderLinesPerSplit(uint16_t y)
+	virtual void partialRender() override
 	{
 		using namespace sampling;
-		uint16_t lineX = x;
-		for (uint i = 0; i < widthDivisions; i++) {
-			bool isPrimary = i == widthDivisions / 2;
-			tft.drawFastVLine(lineX, y, sliceHeight, 
-				isPrimary ? primaryGridColor : secondaryGridColor);
-			lineX += widthPixelsPerDivision;
+		if (isSingleGraphActive()) {
+			if (lastWasSingle) [[likely]] {
+				singleGraph.partialRender();
+			}
+			else {
+				setupSingleGraph();
+				singleGraph.render();
+				lastWasSingle = true;
+			}
 		}
-		uint16_t lineY = y;
-		for (uint i = 0; i < heightDivisions; i++) {
-			bool isPrimary = i == heightDivisions / 2;
-			tft.drawFastHLine(x, lineY, width,
-				isPrimary ? primaryGridColor : secondaryGridColor);
-			lineY += heightPixelsPerDivision;
+		else /* both channels selected separate view */ {
+			if (!lastWasSingle) [[likely]] {
+				firstSplitGraph.partialRender();
+				secondSplitGraph.partialRender();
+			}
+			else {
+				setupSplitGraphs();
+				firstSplitGraph.render();
+				secondSplitGraph.render();
+				lastWasSingle = false;
+			}
 		}
 	}
-} splitGraph;
+} graphDispatch;
 
 // TODO: better way to share it to main, maybe go fix TODO in Group constructor
-Element& graph = splitGraph;
+Element& graph = graphDispatch;
 
 }
-

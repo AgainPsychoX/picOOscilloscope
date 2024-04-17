@@ -8,8 +8,15 @@ namespace ui {
 
 struct Element
 {
-	/// Preforms full re-render of the element
+	/// Preforms full draw of the element
 	virtual void render() = 0;
+
+	/// Preforms partial draw of the element, updating small part at the time,
+	/// without necessarily redrawing unaffected areas. Defaults to `render()`.
+	virtual void partialRender()
+	{
+		render();
+	}
 };
 
 struct Rectangle : public Element
@@ -86,7 +93,7 @@ private:
 /// User might want to use '-', '<', 'a', etc., so strings can be provided
 /// for left and right labels. Used string instead single char to support UTF8 
 /// with/or smooth fonts glyphs. Also it makes implementation easier.
-struct RangeHorizontalButton : public Button
+struct RangeHorizontalInput : public Button
 {
 	/// Optional (null to skip) label to be displayed above value string representation.
 	const char* centerLabel;
@@ -103,7 +110,7 @@ struct RangeHorizontalButton : public Button
 	/// If false, they will be vertically aligned in button center.
 	bool sidesAlignToValue = false;
 
-	RangeHorizontalButton(
+	RangeHorizontalInput(
 		uint16_t x, uint16_t y, uint16_t w, uint16_t h, const char* centerLabel,
 		const char* leftLabel = "-", const char* rightLabel = "+", 
 		uint8_t sidesFontSize = 255, // 255 (-1) defaults to 1, or 2 if center label is present
@@ -187,7 +194,7 @@ public:
 
 	/// Constructs group with specifies elements
 	template<typename... Ts>
-	Group(Ts&&... args)
+	inline Group(Ts&&... args)
 	{
 		// TODO: separate buttons and elements to separate containers
 		buttons.reserve(sizeof...(args));

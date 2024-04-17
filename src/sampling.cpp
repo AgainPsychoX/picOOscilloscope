@@ -11,9 +11,9 @@ namespace voltage
 
 // Assuming range ID 0, with S1/S0 control inputs of 74HC4052 both being 0 (LOW), 
 // is default and safe (widest range). 
-
 static const float _minVoltages[] = { -5.872f, -2.152f, -1.120f, -0.404f };
 static const float _maxVoltages[] = {  5.917f,  2.497f,  0.949f,  0.585f };
+// TODO: couldn't those be int16_t, in mV ?
 constexpr uint8_t _optionsCount = sizeof(_maxVoltages) / sizeof(*_maxVoltages);
 static_assert(sizeof(_minVoltages) == sizeof(_maxVoltages));
 
@@ -40,6 +40,7 @@ void Shifter::init()
 	uint32_t mask = (1 << s0Pin) | (1 << s1Pin);
 	gpio_init_mask(mask);
 	gpio_set_dir_out_masked(mask);
+	gpio_put_masked(mask, 0);
 }
 
 void Shifter::set(Range range)
@@ -102,7 +103,7 @@ static inline dma_channel_transfer_size sampleDMATransferDataSize()
 	}
 }
 
-ChannelSelection channelSelection;
+ChannelSelection channelSelection = ChannelSelection::OnlyFirst;
 
 uint32_t clockBase()
 {

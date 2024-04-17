@@ -55,14 +55,14 @@ void TextButton::render(uint16_t backgroundColor)
 
 ////////////////////////////////////////////////////////////////////////////////
 
-void RangeHorizontalButton::render()
+void RangeHorizontalInput::render()
 {
 	tft.drawRect(x, y, w, h, TFT_LIGHTGREY);
 	tft.fillRect(x + 1, y + 1, w - 2, h - 2, TFT_BLACK);
 	renderForeground();
 }
 
-void RangeHorizontalButton::onPressDown(uint16_t hx, uint16_t hy)
+void RangeHorizontalInput::onPressDown(uint16_t hx, uint16_t hy)
 {
 	(void) hy; // unused
 	color_t leftColor = TFT_BLACK;
@@ -75,7 +75,7 @@ void RangeHorizontalButton::onPressDown(uint16_t hx, uint16_t hy)
 	renderForeground();
 }
 
-void RangeHorizontalButton::onPressUp(uint16_t hx, uint16_t hy)
+void RangeHorizontalInput::onPressUp(uint16_t hx, uint16_t hy)
 {
 	if (isHit(hx, hy)) {
 		if (isLeft(hx) == pressStartedOnLeft) {
@@ -90,7 +90,7 @@ void RangeHorizontalButton::onPressUp(uint16_t hx, uint16_t hy)
 	render();
 }
 
-void RangeHorizontalButton::renderForeground()
+void RangeHorizontalInput::renderForeground()
 {
 	tft.setTextColor(TFT_WHITE);
 	auto fh = tft.fontHeight();

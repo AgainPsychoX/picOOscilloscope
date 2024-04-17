@@ -87,10 +87,17 @@ Total recording time? Assuming 40'000 samples:
 
 ### To-do
 
-1. Przyciski
-2. Default wartości w `sampling` oraz ładowanie i zapisywanie na EEPROM
-3. Graf
-
++ Consider moving graphing stuff to separate namespace
++ Prefered voltage lines for graphs (symetrical by 0V):
+	+ Range 0: 0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00 V
+	+ Range 1: 0.00, 0.50, 1.00, 1.50, 2.00, 2.50 V
+	+ Range 2: 0.00, 0.25, 0.50, 0.75, 1.00, 1.25 V
+	+ Range 3: 0.00, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60 V
++ Rename all the UI `render` to `draw`, and `partialRender` to `updateDraw` (or something).
++ Consider using lower-level graphical functions to draw graph parts
++ Try fix touch issues
+	+ limit button hitbox?
+	+ detect jumping/deformations, maybe Z jumps around?
 + User Interface inputs:
 	+ Channels: `CH1`, `CH2` (single graph), `CH1+2=` (separate graphs, stacked on top of each other), `CH1+2-` (both on single graph)
 	+ Time-base (multiple levels, +/- buttons) aka "horizontal scale"
