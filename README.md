@@ -50,6 +50,10 @@ The front-end this project uses the more complex, dual channel with 4 voltage ra
 
 <!-- TODO: consider adding resistor values to the table above -->
 
+### Display hardware fix
+
+[An issue was reported](https://github.com/Bodmer/TFT_eSPI/issues/3261) to the library for controlling the display (and touch) for weird behaviour of display and touch SPI bus sharing misbehaving, resulting in visual gliches affecting last draw instructions right before switching SPI to talk with the touch controller. It turned out, the display was affected by a hardware bug. Explanation, origin and workaround (hardware modification) for [the bug are described in TFT_eSPI issues by Bodmer](https://github.com/Bodmer/TFT_eSPI/discussions/898) (maintainer of the library). The proposed modification was applied as workaround in this project: shorting one of diodes on the display board. 
+
 
 
 ## Software

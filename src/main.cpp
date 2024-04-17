@@ -92,11 +92,6 @@ void loop()
 {
 	millis_t now = millis();
 
-	// Delay seems to be required before interfacing touch controller, I guess it's due to (shared) SPI speed changes.
-	// Without it last drawing operations can be glitch, red/blue dots appearing, often on strings drawing.
-	// See https://github.com/Bodmer/TFT_eSPI/issues/3261
-	//delay(2); // glitch visibility very limited by using `tft.setTextColor` workaround anyway
-
 	bool detected = touch::getFiltered(pressX, pressY);
 	bool wasReleased = now - pressLastTime > 100;
 	if (wasReleased) {
