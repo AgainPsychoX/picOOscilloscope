@@ -16,8 +16,6 @@ constexpr color_t centerLineColor = to565(RGB { 127, 127, 127 });
 constexpr color_t helperLineColor = to565(RGB { 63, 63, 63 });
 constexpr color_t helperLineVoltageLabelColor = to565(RGB { 95, 95, 95 });
 
-#define GRAPHS_VOLTAGE_LABELS_EVEN_WITHOUT_V 1
-
 ////////////////////////////////////////////////////////////////////////////////
 // Forward declarations to allow interleaving logic
 
@@ -25,6 +23,10 @@ struct ChannelButton;
 struct VoltageShifterInput;
 
 void updateGraphsByVoltageShiftersInput();
+
+// Shared buffer for various just-in-time UI related strings, 
+// like for printf right before drawing contents to the display.
+char sharedBuffer[32];
 
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -168,8 +170,6 @@ struct VoltageShifterInput : public RangeHorizontalInput
 			/*padding*/ 4, /*align*/ true)
 	{}
 
-	char valueStringBuffer[16];
-
 	virtual const char* valueString() override
 	{
 		using namespace sampling;
@@ -198,10 +198,10 @@ struct VoltageShifterInput : public RangeHorizontalInput
 				}
 		}
 
-		snprintf(valueStringBuffer, sizeof(valueStringBuffer),
+		snprintf(sharedBuffer, sizeof(sharedBuffer),
 			"%.2f +%.2fV", range.minVoltage(), range.maxVoltage());
 
-		return valueStringBuffer;
+		return sharedBuffer;
 	}
 
 	virtual void onLeftAction() override
@@ -259,6 +259,9 @@ uint16_t timeBaseIntegers[] {
 	//						10		20		40			80			160			320
 	//														100			200			400		800
 };
+constexpr auto timeBaseIntegersCount = sizeof(timeBaseIntegers) / sizeof(*timeBaseIntegers);
+
+const char* timeBaseUnits = "us\0" "ms\0" "s\0" "\0";
 
 struct TimeBaseInput : public RangeHorizontalInput
 {
@@ -270,27 +273,93 @@ struct TimeBaseInput : public RangeHorizontalInput
 			/*padding*/ 4, /*align*/ true)
 	{}
 
-	char buffer[16];
+	uint32_t value;
 
 	virtual const char* valueString() override
 	{
-		using namespace sampling;
-
-		snprintf(buffer, sizeof(buffer), "%u %s", 
-			2, 
-			"us");
-
-		return buffer;
+		assert(value < 1'000'000'000);
+		const char* unit = timeBaseUnits;
+		auto integer = value;
+		while (integer >= 1000) {
+			if (integer % 1000) {
+				break;
+			}
+			else {
+				integer /= 1000;
+				unit += 3; // first from 'us' to 'ms' then to 's'
+			}
+		}
+		snprintf(sharedBuffer, sizeof(sharedBuffer), "%lu %s", integer, unit);
+		return sharedBuffer;
 	}
+
+	// TODO: allow precise manipulation of the value (per us)
 
 	virtual void onLeftAction() override
 	{
-		// TODO: ...
+		// Find current or next closest integer option
+		auto closestInteger = value;
+		uint8_t unitIdx = 0; // 0 = us, 1 = ms, 2 = s
+		while (closestInteger >= 1000) {
+			closestInteger /= 1000;
+			unitIdx++;
+		}
+		uint8_t integerIdx = 0;
+		while (timeBaseIntegers[integerIdx] < closestInteger) {
+			integerIdx++;
+		}
+
+		// Select previous integer option
+		if (integerIdx == 0) {
+			if (unitIdx != 0) /* not microseconds */ {
+				integerIdx = timeBaseIntegersCount - 1;
+				unitIdx--;
+			}
+		}
+		else {
+			integerIdx--;
+		}
+		value = timeBaseIntegers[integerIdx];
+		while (unitIdx--) {
+			value *= 1000;
+		}
+
+		// TODO: prompt about going too close/below sampling rate
 	}
 
 	virtual void onRightAction() override
 	{
-		// TODO: ...
+		// Find current or previous closest integer option
+		auto closestInteger = value;
+		uint8_t unitIdx = 0; // 0 = us, 1 = ms, 2 = s
+		while (closestInteger >= 1000) {
+			closestInteger /= 1000;
+			unitIdx++;
+		}
+		uint8_t integerIdx = timeBaseIntegersCount - 1;
+		if (closestInteger < timeBaseIntegers[0]) {
+			integerIdx = -1; // overflow few lanes below will make it to idx 0
+		}
+		else {
+			while (closestInteger < timeBaseIntegers[integerIdx]) {
+				integerIdx--;
+			}
+		}
+
+		// Select previous integer option
+		if (integerIdx == timeBaseIntegersCount - 1) {
+			if (unitIdx != 2) /* not seconds */ {
+				integerIdx = 0;
+				unitIdx++;
+			}
+		}
+		else {
+			integerIdx++;
+		}
+		value = timeBaseIntegers[integerIdx];
+		while (unitIdx--) {
+			value *= 1000;
+		}
 	}
 } timeBaseInput;
 
@@ -601,15 +670,15 @@ struct VoltageGraph : public Graph
 			return nullptr;
 		}
 		int16_t mV = yValueStep * foo;
-		static char buffer[8];
-		int w = sprintf(buffer, "%+.4d", mV);
-		buffer[w - 1] = buffer[w - 2];
-		buffer[w - 2] = buffer[w - 3];
-		buffer[w - 3] = '.';
-		buffer[5] = 0;
+		// TODO: consider avoiding printf here? https://godbolt.org/z/v6fM3Mxor 
+		int w = sprintf(sharedBuffer, "%+.4d", mV);
+		sharedBuffer[w - 1] = sharedBuffer[w - 2];
+		sharedBuffer[w - 2] = sharedBuffer[w - 3];
+		sharedBuffer[w - 3] = '.';
+		sharedBuffer[5] = 0;
 		// TODO: clear debug logging as trace log
-		// Serial.printf("cy=%u mV=%d buffer='%s'\n", cy, mV, buffer);
-		return buffer;
+		// Serial.printf("cy=%u mV=%d buf='%s'\n", cy, mV, sharedBuffer);
+		return sharedBuffer;
 	}
 };
 

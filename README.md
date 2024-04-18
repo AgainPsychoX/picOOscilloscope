@@ -116,21 +116,28 @@ Total recording time? Assuming 40'000 samples:
 			+ Positive/Negative Pulse (pulse up/down to at least set level of at least set width)
 			+ Positive/Negative Glitch (pulse up/down to at least set level of less than set width)
 			+ Logic AND/NAND/OR/NOR/XOR ?
-		+ Level: (V +/-)
-		+ Width: (time +/-)
+		+ Some modes are parameterized 
+			+ Level: (V +/-)
+			+ Width: (time +/-)
 		+ Repeat: ON/OFF/1 (1 == "Next", for next single capture when not repeating)
+		+ Hold off (time +/-)
 	+ Sample rate? Lower = less detail, longer data
 		+ Technical
 		+ Can be derived from time-base somewhat
 		+ With enough memory seems like more detail is more important anyway, especially because max sample rate isn't that high anyway.
 		+ On other hand, maybe we can make ADC work with lower resolution/accuracy, but more speed (tradeoff)
 	+ ...
-	+ Interesting read: https://www.tek.com/en/documents/primer/oscilloscope-systems-and-controls
+	+ Interesting read/watch: 
+		+ https://www.tek.com/en/documents/primer/oscilloscope-systems-and-controls
+		+ https://www.youtube.com/watch?v=1b3ivEZo7hw&list=PL2XuMA5AwNUznkBE46tcZAF3p5Edxgm-z&pp=iAQB
 + User Interface outputs:
 	+ Voltages (max/min/avg)
 	+ Frequency, Duty
 	+ ...
 + Watch https://www.youtube.com/watch?v=rDDiPzJpI18 , try to understand "unofficial" speeds
++ Multi-language support, most likely configured on compile time
+	+ Polish - including speical characters outside ASCII (custom fonts or fixing by overlapping characters/pixel drawings)
+	+ English
 + Overclocking? 
 	+ https://forums.raspberrypi.com/viewtopic.php?t=340691
 	+ https://www.youtube.com/watch?v=G2BuoFNLoDM
@@ -159,6 +166,6 @@ Total recording time? Assuming 40'000 samples:
 	+ Would require more testing, at least more rotations etc., but also other devices - which we don't have any at the moment.
 	+ By the way, library could use more examples with touch along the way, like saving calibration settings to EEPROM, hand-writing with smart lines, maybe simple paint etc.
 	+ Macros could be used to provide options (dynamic deadband error limit and other valid-touch filtering parameters).
-+ Use C++17 (or better). Sadly, the [ArduinoCore-mbed](https://github.com/arduino/ArduinoCore-mbed) doesn't work with it, because `<Arduino.h>` has `abs` macro, and `chrono` (and other C++ headers) define them as templated functions which messes everything up. Solution would be to strategically put `#undef abs` in various places.
++ Refactor code (especially UI) into more seprate files or even [private libraries](https://docs.platformio.org/en/latest/projectconf/sections/platformio/options/directory/lib_dir.html). This will allow [unit testing](https://docs.platformio.org/en/latest/advanced/unit-testing/index.html), could be useful for some UI elements (might require mocking TFT and some other things).
 
 
