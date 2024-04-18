@@ -1,59 +1,7 @@
-#include "ui/base.hpp"
-#include <TFT_eSPI.h>
-#include <array>
-
-extern TFT_eSPI tft; // from main
+#include "ui/base/RangeHorizontalInput.hpp"
+#include "ui/tft.hpp"
 
 namespace ui {
-
-// TODO: few macros to configure base colors?
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Button::render()
-{
-	tft.drawRect(x, y, w, h, TFT_LIGHTGREY);
-	tft.fillRect(x + 1, y + 1, w - 2, h - 2, TFT_BLACK);
-}
-
-void Button::onPressDown(uint16_t hx, uint16_t hy)
-{
-	(void) hx; (void) hy; // unused
-	tft.fillRect(x + 1, y + 1, w - 2, h - 2, TFT_DARKGREY);
-}
-
-void Button::onPressUp(uint16_t hx, uint16_t hy)
-{
-	if (isHit(hx, hy)) {
-		action();
-	}
-	render();
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-void TextButton::render()
-{
-	render(TFT_BLACK);
-}
-
-void TextButton::onPressDown(uint16_t hx, uint16_t hy)
-{
-	(void) hx; (void) hy; // unused
-	render(TFT_DARKGREY);
-}
-
-void TextButton::render(uint16_t backgroundColor)
-{
-	tft.drawRect(x, y, w, h, TFT_LIGHTGREY);
-	tft.fillRect(x + 1, y + 1, w - 2, h - 2, backgroundColor);
-
-	tft.setTextDatum(CC_DATUM);
-	tft.setTextColor(TFT_WHITE, backgroundColor);
-	tft.drawString(text, x + w / 2, y + h / 2);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 void RangeHorizontalInput::render()
 {
@@ -120,14 +68,5 @@ void RangeHorizontalInput::renderForeground()
 		tft.textsize = textsize; // restore
 	}
 }
-
-////////////////////////////////////////////////////////////////////////////////
-
-void Text::render()
-{
-	tft.drawString(text, x, y);
-}
-
-////////////////////////////////////////////////////////////////////////////////
 
 }

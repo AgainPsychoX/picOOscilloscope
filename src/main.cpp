@@ -6,7 +6,7 @@
 #include "common.hpp"
 #include "touch.hpp"
 #include "sampling.hpp"
-#include "ui/base.hpp"
+#include "ui/root.hpp"
 
 TFT_eSPI tft = TFT_eSPI();
 
