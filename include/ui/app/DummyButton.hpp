@@ -24,12 +24,12 @@ struct TwoLineDummyButton : public Button
 		: Button(x, y, w, h), firstLine(firstLine), secondLine(secondLine)
 	{}
 
-	virtual void render() override;
+	virtual void draw() override;
 	virtual void action() override {}
 	virtual void onPressDown(uint16_t hx, uint16_t hy) override;
 
 private:
-	void render(color_t backgroundColor);
+	void draw(color_t backgroundColor);
 };
 
 }

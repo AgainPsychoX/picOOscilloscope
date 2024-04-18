@@ -10,7 +10,7 @@ struct Button : public Rectangle
 		: Rectangle(x, y, w, h)
 	{}
 
-	virtual void render() override;
+	virtual void draw() override;
 
 	/// @brief Action for the button to be executed on valid full press.
 	virtual void action() = 0;

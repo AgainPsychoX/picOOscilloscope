@@ -24,7 +24,7 @@ void Graph::setHeightDivisions(uint8_t number)
 	fullyDirty = true;
 }
 
-void Graph::render()
+void Graph::draw()
 {
 	// Clear and draw extra line parts in wasted space/padding
 	if (halfHeightWasted) {
@@ -62,13 +62,13 @@ void Graph::render()
 	fullyDirty = false;
 
 	// auto us_end = to_us_since_boot(get_absolute_time());
-	// Serial.printf("Graph render took %llu\n", us_end - us_start);
+	// Serial.printf("Graph draw took %llu\n", us_end - us_start);
 }
 
-void Graph::partialRender()
+void Graph::partialDraw()
 {
 	if (fullyDirty)
-		return render();
+		return draw();
 
 	// auto us_start = to_us_since_boot(get_absolute_time());
 	// unsigned int cellsCount = 0;
@@ -92,7 +92,7 @@ void Graph::partialRender()
 
 	// TODO: clear debug logging as trace log
 	// auto us_end = to_us_since_boot(get_absolute_time());
-	// Serial.printf("Graph partialRender with %u cells took %llu\n", 
+	// Serial.printf("Graph partialDraw with %u cells took %llu\n", 
 	// 	cellsCount, us_end - us_start);
 }
 
@@ -192,44 +192,44 @@ void GraphDispatch::setupSplitGraphs()
 	secondSplitGraph.yValueStep = yValueStepByRangeId[id] * 2;
 }
 
-void GraphDispatch::render()
+void GraphDispatch::draw()
 {
 	using namespace sampling;
 	if (isSingleGraphActive()) {
 		setupSingleGraph();
-		singleGraph.render();
+		singleGraph.draw();
 		lastWasSingle = true;
 	}
 	else /* both & separate */ {
 		setupSplitGraphs();
-		firstSplitGraph.render();
-		secondSplitGraph.render();
+		firstSplitGraph.draw();
+		secondSplitGraph.draw();
 		lastWasSingle = false;
 	}
 }
 
-void GraphDispatch::partialRender()
+void GraphDispatch::partialDraw()
 {
 	using namespace sampling;
 	if (isSingleGraphActive()) {
 		if (lastWasSingle) [[likely]] {
-			singleGraph.partialRender();
+			singleGraph.partialDraw();
 		}
 		else {
 			setupSingleGraph();
-			singleGraph.render();
+			singleGraph.draw();
 			lastWasSingle = true;
 		}
 	}
 	else /* both channels selected separate view */ {
 		if (!lastWasSingle) [[likely]] {
-			firstSplitGraph.partialRender();
-			secondSplitGraph.partialRender();
+			firstSplitGraph.partialDraw();
+			secondSplitGraph.partialDraw();
 		}
 		else {
 			setupSplitGraphs();
-			firstSplitGraph.render();
-			secondSplitGraph.render();
+			firstSplitGraph.draw();
+			secondSplitGraph.draw();
 			lastWasSingle = false;
 		}
 	}

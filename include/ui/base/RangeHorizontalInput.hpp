@@ -39,7 +39,7 @@ struct RangeHorizontalInput : public Button
 		sidesAlignToValue(sidesAlignToValue)
 	{};
 
-	virtual void render() override;
+	virtual void draw() override;
 	virtual void action() override { /* allow to be omitted */ }
 	virtual void onPressDown(uint16_t hx, uint16_t hy) override;
 	virtual void onPressUp(uint16_t hx, uint16_t hy) override;
@@ -57,7 +57,7 @@ protected:
 	bool pressStartedOnLeft;
 	inline bool isLeft(uint16_t hx)  { return hx < x + w / 2; }
 private:
-	void renderForeground();
+	void drawForeground();
 };
 
 }

@@ -32,14 +32,14 @@ void ChannelButton::action()
 void ChannelButton::onPressDown(uint16_t hx, uint16_t hy)
 {
 	(void) hx; (void) hy; // unused
-	render(TFT_DARKGREY);
+	draw(TFT_DARKGREY);
 }
-void ChannelButton::render()
+void ChannelButton::draw()
 {
-	render(TFT_BLACK);
+	draw(TFT_BLACK);
 }
 
-void ChannelButton::render(color_t backgroundColor)
+void ChannelButton::draw(color_t backgroundColor)
 {
 	tft.drawRect(x, y, w, h, TFT_LIGHTGREY);
 	tft.fillRect(x + 1, y + 1, w - 2, h - 2, backgroundColor);

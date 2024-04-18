@@ -10,7 +10,7 @@ struct Text : public Element
 	uint16_t y;
 	const char* text;
 
-	virtual void render() override;
+	virtual void draw() override;
 };
 
 }

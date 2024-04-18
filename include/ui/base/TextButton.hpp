@@ -12,11 +12,11 @@ struct TextButton : public Button
 		: Button(x, y, w, h), text(text)
 	{}
 
-	virtual void render() override;
+	virtual void draw() override;
 	virtual void onPressDown(uint16_t hx, uint16_t hy) override;
 
 private:
-	void render(uint16_t backgroundColor);
+	void draw(uint16_t backgroundColor);
 };
 
 }

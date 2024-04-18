@@ -8,7 +8,7 @@ template <template<typename...> typename TContainer>
 class Group : public Element
 {
 private:
-	bool hidden = false; // skip rendering & interactions if true
+	bool hidden = false; // skip drawing & interactions if true
 public:
 	void hide()
 	{
@@ -55,15 +55,27 @@ public:
 	}
 
 public:
-	virtual void render() override
+	virtual void draw() override
 	{
 		if (hidden) return;
 
 		for (auto& other : others) {
-			other->render();
+			other->draw();
 		}
 		for (auto& button : buttons) {
-			button->render();
+			button->draw();
+		}
+	}
+
+	virtual void partialDraw() override
+	{
+		if (hidden) return;
+
+		for (auto& other : others) {
+			other->partialDraw();
+		}
+		for (auto& button : buttons) {
+			button->partialDraw();
 		}
 	}
 

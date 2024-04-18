@@ -3,7 +3,7 @@
 
 namespace ui {
 
-void Text::render()
+void Text::draw()
 {
 	tft.drawString(text, x, y);
 }

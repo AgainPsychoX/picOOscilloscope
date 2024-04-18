@@ -3,11 +3,11 @@
 
 namespace ui {
 
-void RangeHorizontalInput::render()
+void RangeHorizontalInput::draw()
 {
 	tft.drawRect(x, y, w, h, TFT_LIGHTGREY);
 	tft.fillRect(x + 1, y + 1, w - 2, h - 2, TFT_BLACK);
-	renderForeground();
+	drawForeground();
 }
 
 void RangeHorizontalInput::onPressDown(uint16_t hx, uint16_t hy)
@@ -20,7 +20,7 @@ void RangeHorizontalInput::onPressDown(uint16_t hx, uint16_t hy)
 		std::swap(leftColor, rightColor);
 	}
 	tft.fillRectHGradient(x + 1, y + 1, w - 2, h - 2, leftColor, rightColor);
-	renderForeground();
+	drawForeground();
 }
 
 void RangeHorizontalInput::onPressUp(uint16_t hx, uint16_t hy)
@@ -35,10 +35,10 @@ void RangeHorizontalInput::onPressUp(uint16_t hx, uint16_t hy)
 			}
 		}
 	}
-	render();
+	draw();
 }
 
-void RangeHorizontalInput::renderForeground()
+void RangeHorizontalInput::drawForeground()
 {
 	tft.setTextColor(TFT_WHITE);
 	auto fh = tft.fontHeight();

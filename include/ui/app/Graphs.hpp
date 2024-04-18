@@ -9,8 +9,8 @@ namespace ui {
 	Problem: to draw new graph we need clear previous one.
 
 	Solutions:
-	1. full fill & render
-		- will cause flickering to re-render all the lines
+	1. full fill & draw
+		- will cause flickering to re-draw all the lines
 		- can make touch a bit less responsible
 	2. remembering which pixels were changed
 		- requires memory to keep each pixel position - we can assume one per 
@@ -82,8 +82,8 @@ struct Graph : public Element
 		cellDirtyBitset[cx * maxDivisionsPerDim + cy] = false;
 	}
 
-	virtual void render() override;
-	virtual void partialRender() override;
+	virtual void draw() override;
+	virtual void partialDraw() override;
 
 	virtual void drawCell(uint8_t cx, uint8_t cy, uint16_t sx, uint16_t sy);
 
@@ -115,8 +115,8 @@ struct GraphDispatch : public Element
 {
 	bool lastWasSingle;
 
-	virtual void render() override;
-	virtual void partialRender() override;
+	virtual void draw() override;
+	virtual void partialDraw() override;
 
 	bool isSingleGraphActive();
 

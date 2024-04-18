@@ -79,8 +79,8 @@ void setup()
 
 	tft.setTextFont(2);
 	tft.setTextColor(TFT_WHITE); // also makes font background transparent, avoiding filling
-	ui::root.render();
-	ui::graph.render();
+	ui::root.draw();
+	ui::graph.draw();
 }
 
 millis_t pressLastTime = 0;
@@ -108,5 +108,5 @@ void loop()
 	}
 
 	// TODO: ui::root.update(); to update elements like text w/ values
-	ui::graph.partialRender();
+	ui::graph.partialDraw();
 }

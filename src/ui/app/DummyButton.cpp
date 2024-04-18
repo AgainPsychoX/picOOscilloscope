@@ -3,12 +3,12 @@
 
 namespace ui {
 
-void TwoLineDummyButton::render()
+void TwoLineDummyButton::draw()
 {
-	render(TFT_BLACK);
+	draw(TFT_BLACK);
 }
 
-void TwoLineDummyButton::render(color_t backgroundColor)
+void TwoLineDummyButton::draw(color_t backgroundColor)
 {
 	tft.drawRect(x, y, w, h, TFT_LIGHTGREY);
 	tft.fillRect(x + 1, y + 1, w - 2, h - 2, backgroundColor);
@@ -31,7 +31,7 @@ void TwoLineDummyButton::render(color_t backgroundColor)
 void TwoLineDummyButton::onPressDown(uint16_t hx, uint16_t hy)
 {
 	(void) hx; (void) hy; // unused
-	render(TFT_DARKGREY);
+	draw(TFT_DARKGREY);
 }
 
 }

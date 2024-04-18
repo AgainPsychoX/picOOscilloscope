@@ -57,7 +57,7 @@ RootGroup root {
 
 void ChannelButton::updateVoltageShifterInput()
 {
-	voltageShifterInput.render();
+	voltageShifterInput.draw();
 }
 
 void VoltageShifterInput::updateGraphs()

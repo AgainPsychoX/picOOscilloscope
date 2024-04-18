@@ -3,7 +3,7 @@
 
 namespace ui {
 
-void Button::render()
+void Button::draw()
 {
 	tft.drawRect(x, y, w, h, TFT_LIGHTGREY);
 	tft.fillRect(x + 1, y + 1, w - 2, h - 2, TFT_BLACK);
@@ -20,7 +20,7 @@ void Button::onPressUp(uint16_t hx, uint16_t hy)
 	if (isHit(hx, hy)) {
 		action();
 	}
-	render();
+	draw();
 }
 
 }

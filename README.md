@@ -97,7 +97,6 @@ Total recording time? Assuming 40'000 samples:
 	+ Range 1: 0.00, 0.50, 1.00, 1.50, 2.00, 2.50 V
 	+ Range 2: 0.00, 0.25, 0.50, 0.75, 1.00, 1.25 V
 	+ Range 3: 0.00, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60 V
-+ Rename all the UI `render` to `draw`, and `partialRender` to `updateDraw` (or something).
 + Consider using lower-level graphical functions to draw graph parts
 + Try fix touch issues
 	+ limit button hitbox?
@@ -166,6 +165,7 @@ Total recording time? Assuming 40'000 samples:
 	+ Would require more testing, at least more rotations etc., but also other devices - which we don't have any at the moment.
 	+ By the way, library could use more examples with touch along the way, like saving calibration settings to EEPROM, hand-writing with smart lines, maybe simple paint etc.
 	+ Macros could be used to provide options (dynamic deadband error limit and other valid-touch filtering parameters).
-+ Refactor code (especially UI) into more seprate files or even [private libraries](https://docs.platformio.org/en/latest/projectconf/sections/platformio/options/directory/lib_dir.html). This will allow [unit testing](https://docs.platformio.org/en/latest/advanced/unit-testing/index.html), could be useful for some UI elements (might require mocking TFT and some other things).
++ Consider refactoring some code (especially UI) into [private libraries](https://docs.platformio.org/en/latest/projectconf/sections/platformio/options/directory/lib_dir.html). This will allow [unit testing](https://docs.platformio.org/en/latest/advanced/unit-testing/index.html), could be useful for some UI elements (might require mocking TFT and some other things). Other way of unit testing is possible, but requires macros.
++ Unit tests :^)
 
 

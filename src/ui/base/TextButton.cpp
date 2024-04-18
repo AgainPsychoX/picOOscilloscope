@@ -3,18 +3,18 @@
 
 namespace ui {
 
-void TextButton::render()
+void TextButton::draw()
 {
-	render(TFT_BLACK);
+	draw(TFT_BLACK);
 }
 
 void TextButton::onPressDown(uint16_t hx, uint16_t hy)
 {
 	(void) hx; (void) hy; // unused
-	render(TFT_DARKGREY);
+	draw(TFT_DARKGREY);
 }
 
-void TextButton::render(uint16_t backgroundColor)
+void TextButton::draw(uint16_t backgroundColor)
 {
 	tft.drawRect(x, y, w, h, TFT_LIGHTGREY);
 	tft.fillRect(x + 1, y + 1, w - 2, h - 2, backgroundColor);
