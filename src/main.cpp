@@ -37,7 +37,7 @@ struct PersistedConfig
 };
 
 namespace ui {
-	extern Element& graph; // TODO: (see TODO in app.cpp)
+	extern Element& graph; // from root.cpp
 }
 
 void setup()
@@ -81,6 +81,9 @@ void setup()
 	tft.setTextColor(TFT_WHITE); // also makes font background transparent, avoiding filling
 	ui::root.draw();
 	ui::graph.draw();
+
+	sampling::init();
+	sampling::start();
 }
 
 millis_t pressLastTime = 0;

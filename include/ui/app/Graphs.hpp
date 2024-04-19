@@ -67,7 +67,7 @@ struct Graph : public Element
 	std::bitset<maxDivisionsPerDim * maxDivisionsPerDim> cellDirtyBitset;
 	bool fullyDirty = true;
 
-	inline bool isCellDirty(uint8_t cx, uint8_t cy)
+	inline bool isCellDirty(uint8_t cx, uint8_t cy) const
 	{
 		return cellDirtyBitset[cx * maxDivisionsPerDim + cy];
 	}
@@ -118,22 +118,16 @@ struct GraphDispatch : public Element
 	virtual void draw() override;
 	virtual void partialDraw() override;
 
-	bool isSingleGraphActive();
+	/// Returns which graph should be currently active (by channel selection)
+	bool isSingleGraphActive() const;
 
-	/// Setups single graph for properly displaying current voltage range etc.
+	/// Setups graph(s) for properly displaying current voltage range etc.
+	void setup();
 	void setupSingleGraph();
-
-	/// Setups split graphs for properly displaying current voltage range etc.
 	void setupSplitGraphs();
+
+	/// Returns width of cells that graph(s) are setup for.
+	uint8_t getCellWidth() const;
 };
-
-extern VoltageGraph singleGraph;
-extern VoltageGraph firstSplitGraph;
-extern VoltageGraph secondSplitGraph;
-
-extern GraphDispatch graphDispatch;
-
-// TODO: better way to share it to main, maybe go fix TODO in Group constructor
-extern Element& graph;
 
 }

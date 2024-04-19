@@ -7,10 +7,23 @@
 
 namespace ui {
 
+////////////////////////////////////////////////////////////////////////////////
+// Graphs
+
 VoltageGraph singleGraph { 0, 0, 380, 320, 10, 12 };
 VoltageGraph firstSplitGraph { 0, 0, 380, 160, 10, 12 };
 VoltageGraph secondSplitGraph { 0, 160, 380, 160, 10, 12 };
 // TODO: union? single graph OR 2x split graphs
+
+GraphDispatch graphDispatch;
+
+// TODO: better way to share it to main, maybe go fix TODO in Group constructor,
+//  and put graphDispatch in root; also would allow separating out sub-groups 
+//  for various menu levels on right side...
+Element& graph = graphDispatch; // extern'ed in main
+
+////////////////////////////////////////////////////////////////////////////////
+// Top level menu
 
 ChannelButton channelButton { 380, 0, 100, 40 };
 VoltageShifterInput voltageShifterInput { 380, 40, 100, 40 }; 
@@ -62,12 +75,7 @@ void ChannelButton::updateVoltageShifterInput()
 
 void VoltageShifterInput::updateGraphs()
 {
-	if (graphDispatch.isSingleGraphActive()) {
-		graphDispatch.setupSingleGraph();
-	}
-	else {
-		graphDispatch.setupSplitGraphs();
-	}
+	graphDispatch.setup();
 }
 
 }

@@ -158,39 +158,11 @@ const char* VoltageGraph::getYLabel(uint8_t cy) const
 ////////////////////////////////////////////////////////////////////////////////
 // Setup & glue
 
-static const uint16_t yValueStepByRangeId[] = { 1000, 500, 250, 100 };
-static const uint16_t heightDivisionsByRangeId[] = { 12, 10, 10, 12 };
+extern VoltageGraph singleGraph;
+extern VoltageGraph firstSplitGraph;
+extern VoltageGraph secondSplitGraph;
 
-bool GraphDispatch::isSingleGraphActive()
-{
-	using namespace sampling;
-	return channelSelection.single() || channelSelection.together();
-}
-
-void GraphDispatch::setupSingleGraph()
-{
-	using namespace sampling;
-	uint8_t widest = 3; // starts with 3 which is narrowest range
-	if (channelSelection.first()) {
-		widest = voltage::shifter[0].get().id;
-	}
-	if (channelSelection.second()) {
-		widest = std::min(widest, voltage::shifter[1].get().id);
-	}
-	singleGraph.setHeightDivisions(heightDivisionsByRangeId[widest]);
-	singleGraph.yValueStep = yValueStepByRangeId[widest];
-}
-
-void GraphDispatch::setupSplitGraphs()
-{
-	using namespace sampling;
-	uint8_t id = voltage::shifter[0].get().id;
-	firstSplitGraph.setHeightDivisions(heightDivisionsByRangeId[id] / 2);
-	firstSplitGraph.yValueStep = yValueStepByRangeId[id] * 2;
-	/*****/ id = voltage::shifter[1].get().id;
-	secondSplitGraph.setHeightDivisions(heightDivisionsByRangeId[id] / 2);
-	secondSplitGraph.yValueStep = yValueStepByRangeId[id] * 2;
-}
+extern GraphDispatch graphDispatch;
 
 void GraphDispatch::draw()
 {
@@ -235,10 +207,54 @@ void GraphDispatch::partialDraw()
 	}
 }
 
-GraphDispatch graphDispatch;
+static const uint16_t yValueStepByRangeId[] = { 1000, 500, 250, 100 };
+static const uint16_t heightDivisionsByRangeId[] = { 12, 10, 10, 12 };
 
-// TODO: better way to share it to main, maybe go fix TODO in Group constructor
-Element& graph = graphDispatch;
+bool GraphDispatch::isSingleGraphActive() const
+{
+	using namespace sampling;
+	return channelSelection.single() || channelSelection.together();
+}
 
+void GraphDispatch::setup()
+{
+	if (isSingleGraphActive())
+		setupSingleGraph();
+	else
+		setupSplitGraphs();
+}
+
+void GraphDispatch::setupSingleGraph()
+{
+	using namespace sampling;
+	uint8_t widest = 3; // starts with 3 which is narrowest range
+	if (channelSelection.first()) {
+		widest = voltage::shifter[0].get().id;
+	}
+	if (channelSelection.second()) {
+		widest = std::min(widest, voltage::shifter[1].get().id);
+	}
+	singleGraph.setHeightDivisions(heightDivisionsByRangeId[widest]);
+	singleGraph.yValueStep = yValueStepByRangeId[widest];
+}
+
+void GraphDispatch::setupSplitGraphs()
+{
+	using namespace sampling;
+	uint8_t id = voltage::shifter[0].get().id;
+	firstSplitGraph.setHeightDivisions(heightDivisionsByRangeId[id] / 2);
+	firstSplitGraph.yValueStep = yValueStepByRangeId[id] * 2;
+	/*****/ id = voltage::shifter[1].get().id;
+	secondSplitGraph.setHeightDivisions(heightDivisionsByRangeId[id] / 2);
+	secondSplitGraph.yValueStep = yValueStepByRangeId[id] * 2;
+}
+
+uint8_t GraphDispatch::getCellWidth() const
+{
+	if (isSingleGraphActive())
+		return singleGraph.cellWidth;
+	else
+		return firstSplitGraph.cellWidth;
+}
 
 }
