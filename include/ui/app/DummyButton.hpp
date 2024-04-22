@@ -26,7 +26,7 @@ struct TwoLineDummyButton : public Button
 
 	virtual void draw() override;
 	virtual void action() override {}
-	virtual void onPressDown(uint16_t hx, uint16_t hy) override;
+	virtual void onPressDown(uint16_t sx, uint16_t sy) override;
 
 private:
 	void draw(color_t backgroundColor);

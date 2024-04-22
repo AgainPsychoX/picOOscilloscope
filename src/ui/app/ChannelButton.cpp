@@ -29,9 +29,9 @@ void ChannelButton::action()
 	updateVoltageShifterInput();
 }
 
-void ChannelButton::onPressDown(uint16_t hx, uint16_t hy)
+void ChannelButton::onPressDown(uint16_t sx, uint16_t sy)
 {
-	(void) hx; (void) hy; // unused
+	(void) sx; (void) sy; // unused
 	draw(TFT_DARKGREY);
 }
 void ChannelButton::draw()

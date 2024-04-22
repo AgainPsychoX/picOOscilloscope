@@ -9,18 +9,23 @@ void Button::draw()
 	tft.fillRect(x + 1, y + 1, w - 2, h - 2, TFT_BLACK);
 }
 
-void Button::onPressDown(uint16_t hx, uint16_t hy)
+void Button::onPressDown(uint16_t sx, uint16_t sy)
 {
-	(void) hx; (void) hy; // unused
+	(void) sx; (void) sy; // unused in base
 	tft.fillRect(x + 1, y + 1, w - 2, h - 2, TFT_DARKGREY);
 }
 
-void Button::onPressUp(uint16_t hx, uint16_t hy)
+void Button::onPressUp(uint16_t sx, uint16_t sy)
 {
-	if (isHit(hx, hy)) {
+	if (isHit(sx, sy)) {
 		action();
 	}
 	draw();
+}
+
+void Button::onPressMove(uint16_t sx, uint16_t sy)
+{
+	(void) sx; (void) sy; // unused in base
 }
 
 }

@@ -8,6 +8,13 @@
 namespace ui {
 
 ////////////////////////////////////////////////////////////////////////////////
+// Press state
+
+uint32_t pressLastTime = 0;
+uint16_t pressX;
+uint16_t pressY;
+
+////////////////////////////////////////////////////////////////////////////////
 // Graphs
 
 VoltageGraph singleGraph { 0, 0, 380, 320, 10, 12 };
@@ -20,7 +27,7 @@ GraphDispatch graphDispatch;
 // TODO: better way to share it to main, maybe go fix TODO in Group constructor,
 //  and put graphDispatch in root; also would allow separating out sub-groups 
 //  for various menu levels on right side...
-Element& graph = graphDispatch; // extern'ed in main
+Element& graph = graphDispatch;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Top level menu

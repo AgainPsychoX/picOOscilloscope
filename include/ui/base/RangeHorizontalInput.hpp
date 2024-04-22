@@ -40,9 +40,13 @@ struct RangeHorizontalInput : public Button
 	{};
 
 	virtual void draw() override;
-	virtual void action() override { /* allow to be omitted */ }
-	virtual void onPressDown(uint16_t hx, uint16_t hy) override;
-	virtual void onPressUp(uint16_t hx, uint16_t hy) override;
+
+	/// Ignore, use `onLeftAction` or `onRightAction` instead.
+	virtual void action() override {};
+
+	virtual void onPressDown(uint16_t sx, uint16_t sy) override;
+	virtual void onPressUp(uint16_t sx, uint16_t sy) override;
+	virtual void onPressMove(uint16_t sx, uint16_t sy) override;
 
 	/// Returns string representation of the current value, to be displayed in the center of the button.
 	virtual const char* valueString() = 0;
@@ -55,7 +59,7 @@ struct RangeHorizontalInput : public Button
 
 protected:
 	bool pressStartedOnLeft;
-	inline bool isLeft(uint16_t hx)  { return hx < x + w / 2; }
+	inline bool isLeft(uint16_t sx)  { return sx < x + w / 2; }
 private:
 	void drawForeground();
 };

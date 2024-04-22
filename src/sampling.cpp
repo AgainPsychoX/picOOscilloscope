@@ -222,7 +222,21 @@ void init()
 			false
 		);
 	}
+}
 
+void deinit()
+{
+	stop();
+	dma_channel_cleanup(sample_dma_ch);
+	dma_channel_cleanup(control_dma_ch);
+	dma_channel_unclaim(sample_dma_ch);
+	dma_channel_unclaim(control_dma_ch);
+	sample_dma_ch = -1;
+	control_dma_ch = -1;
+}
+
+void start()
+{
 	dma_channel_start(sample_dma_ch);
 	dma_channel_start(control_dma_ch);
 	adc_run(true);
@@ -232,20 +246,9 @@ void stop()
 {
 	adc_run(false);
 	dma_channel_abort(sample_dma_ch);
+	dma_channel_abort(control_dma_ch);
 }
 
-void deinit()
-{
-	stop();
-	dma_channel_unclaim(sample_dma_ch);
-	dma_channel_unclaim(control_dma_ch);
-	sample_dma_ch = -1;
-	control_dma_ch = -1;
-}
-
-void reinit()
-{
-	// TODO: ...u
 }
 
 }

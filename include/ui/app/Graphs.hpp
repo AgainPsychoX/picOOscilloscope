@@ -83,7 +83,7 @@ struct Graph : public Element
 	}
 
 	virtual void draw() override;
-	virtual void partialDraw() override;
+	virtual void update() override;
 
 	virtual void drawCell(uint8_t cx, uint8_t cy, uint16_t sx, uint16_t sy);
 
@@ -116,7 +116,7 @@ struct GraphDispatch : public Element
 	bool lastWasSingle;
 
 	virtual void draw() override;
-	virtual void partialDraw() override;
+	virtual void update() override;
 
 	/// Returns which graph should be currently active (by channel selection)
 	bool isSingleGraphActive() const;

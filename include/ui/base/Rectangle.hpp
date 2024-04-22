@@ -16,12 +16,12 @@ struct Rectangle : public Element
 	{}
 
 	/// @brief Check if screen coords hit the button.
-	/// @param hx Hit ray horizontal position on the screen
-	/// @param hy Hit ray vertical position on the screen
+	/// @param sx Hit ray horizontal position on the screen
+	/// @param sy Hit ray vertical position on the screen
 	/// @return True if the button is hit, false otherwise.
-	bool isHit(uint16_t hx, uint16_t hy)
+	bool isHit(uint16_t sx, uint16_t sy)
 	{
-		return x <= hx && hx < x + w && y <= hy && hy < y + h;
+		return x <= sx && sx < x + w && y <= sy && sy < y + h;
 	}
 };
 

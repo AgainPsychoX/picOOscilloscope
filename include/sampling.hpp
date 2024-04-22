@@ -98,11 +98,9 @@ uint32_t sampleRate();
 bool isInitialized();
 
 void init();
-
-void stop();
-
 void deinit();
 
-void reinit();
+void start();
+void stop();
 
 }

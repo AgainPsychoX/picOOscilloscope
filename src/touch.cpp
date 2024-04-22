@@ -1,5 +1,6 @@
 #include "touch.hpp"
 #include <limits>
+#include <cstdio> // snprintf
 #include <TFT_eSPI.h>
 #undef abs
 
@@ -63,6 +64,9 @@ bool getFilteredRaw(uint16_t& xOut, uint16_t& yOut, uint16_t& zOut)
 {
 	// Wait until pressure stops increasing to debounce pressure
 	uint16_t z = tft.getTouchRawZ();
+	if (z < zThreshold) {
+		return false;
+	}
 	uint16_t zPrevious;
 	do {
 		zPrevious = z;

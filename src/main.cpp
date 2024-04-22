@@ -36,10 +36,6 @@ struct PersistedConfig
 	touch::CalibrationData calibrationData;
 };
 
-namespace ui {
-	extern Element& graph; // from root.cpp
-}
-
 void setup()
 {
 	sampling::voltage::init();
@@ -86,30 +82,28 @@ void setup()
 	sampling::start();
 }
 
-millis_t pressLastTime = 0;
-constexpr millis_t notPressedTimeValue = -1;
-uint16_t pressX;
-uint16_t pressY;
-
 void loop()
 {
-	millis_t now = millis();
+	using namespace ui;
+	
+	uint32_t now = to_ms_since_boot(get_absolute_time());
 
 	bool detected = touch::getFiltered(pressX, pressY);
 	bool wasReleased = now - pressLastTime > 100;
 	if (wasReleased) {
 		if (detected) {
-			ui::root.onPressDown(pressX, pressY);
+			root.onPressDown(pressX, pressY);
 		}
 		else if (pressLastTime != notPressedTimeValue) {
 			pressLastTime = notPressedTimeValue;
-			ui::root.onPressUp(pressX, pressY);
+			root.onPressUp(pressX, pressY);
 		}
 	}
 	if (detected) {
 		pressLastTime = now;
+		root.onPressMove(pressX, pressY);
 	}
 
-	// TODO: ui::root.update(); to update elements like text w/ values
-	ui::graph.partialDraw();
+	root.update();
+	graph.update();
 }

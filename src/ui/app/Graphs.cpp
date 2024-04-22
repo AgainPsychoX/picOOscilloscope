@@ -65,7 +65,7 @@ void Graph::draw()
 	// Serial.printf("Graph draw took %llu\n", us_end - us_start);
 }
 
-void Graph::partialDraw()
+void Graph::update()
 {
 	if (fullyDirty)
 		return draw();
@@ -92,7 +92,7 @@ void Graph::partialDraw()
 
 	// TODO: clear debug logging as trace log
 	// auto us_end = to_us_since_boot(get_absolute_time());
-	// Serial.printf("Graph partialDraw with %u cells took %llu\n", 
+	// Serial.printf("Graph update with %u cells took %llu\n", 
 	// 	cellsCount, us_end - us_start);
 }
 
@@ -180,12 +180,12 @@ void GraphDispatch::draw()
 	}
 }
 
-void GraphDispatch::partialDraw()
+void GraphDispatch::update()
 {
 	using namespace sampling;
 	if (isSingleGraphActive()) {
 		if (lastWasSingle) [[likely]] {
-			singleGraph.partialDraw();
+			singleGraph.update();
 		}
 		else {
 			setupSingleGraph();
@@ -195,8 +195,8 @@ void GraphDispatch::partialDraw()
 	}
 	else /* both channels selected separate view */ {
 		if (!lastWasSingle) [[likely]] {
-			firstSplitGraph.partialDraw();
-			secondSplitGraph.partialDraw();
+			firstSplitGraph.update();
+			secondSplitGraph.update();
 		}
 		else {
 			setupSplitGraphs();

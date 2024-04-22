@@ -67,15 +67,15 @@ public:
 		}
 	}
 
-	virtual void partialDraw() override
+	virtual void update() override
 	{
 		if (hidden) return;
 
 		for (auto& other : others) {
-			other->partialDraw();
+			other->update();
 		}
 		for (auto& button : buttons) {
-			button->partialDraw();
+			button->update();
 		}
 	}
 
@@ -99,6 +99,15 @@ public:
 		if (pressedButton) {
 			pressedButton->onPressUp(x, y);
 			pressedButton = nullptr;
+		}
+	}
+
+	void onPressMove(uint16_t x, uint16_t y)
+	{
+		if (hidden) return;
+
+		if (pressedButton) {
+			pressedButton->onPressMove(x, y);
 		}
 	}
 };

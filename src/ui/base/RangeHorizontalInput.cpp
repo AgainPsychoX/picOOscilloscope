@@ -10,12 +10,12 @@ void RangeHorizontalInput::draw()
 	drawForeground();
 }
 
-void RangeHorizontalInput::onPressDown(uint16_t hx, uint16_t hy)
+void RangeHorizontalInput::onPressDown(uint16_t sx, uint16_t sy)
 {
-	(void) hy; // unused
+	(void) sy; // unused
 	color_t leftColor = TFT_BLACK;
 	color_t rightColor = TFT_DARKGREY;
-	pressStartedOnLeft = isLeft(hx);
+	pressStartedOnLeft = isLeft(sx);
 	if (pressStartedOnLeft) {
 		std::swap(leftColor, rightColor);
 	}
@@ -23,10 +23,10 @@ void RangeHorizontalInput::onPressDown(uint16_t hx, uint16_t hy)
 	drawForeground();
 }
 
-void RangeHorizontalInput::onPressUp(uint16_t hx, uint16_t hy)
+void RangeHorizontalInput::onPressUp(uint16_t sx, uint16_t sy)
 {
-	if (isHit(hx, hy)) {
-		if (isLeft(hx) == pressStartedOnLeft) {
+	if (isHit(sx, sy)) {
+		if (isLeft(sx) == pressStartedOnLeft) {
 			if (pressStartedOnLeft) {
 				onLeftAction();
 			}
@@ -36,6 +36,10 @@ void RangeHorizontalInput::onPressUp(uint16_t hx, uint16_t hy)
 		}
 	}
 	draw();
+}
+
+void RangeHorizontalInput::onPressMove(uint16_t sx, uint16_t sy)
+{
 }
 
 void RangeHorizontalInput::drawForeground()
