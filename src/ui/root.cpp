@@ -2,6 +2,7 @@
 #include "ui/app/ChannelButton.hpp"
 #include "ui/app/VoltageShifterInput.hpp"
 #include "ui/app/TimeBaseInput.hpp"
+#include "ui/app/TimeOffsetInput.hpp"
 #include "ui/app/DummyButton.hpp"
 #include "ui/app/Graphs.hpp"
 
@@ -28,14 +29,13 @@ Element& graph = graphDispatch;
 ChannelButton channelButton { 380, 0, 100, 40 };
 VoltageShifterInput voltageShifterInput { 380, 40, 100, 40 }; 
 TimeBaseInput timeBaseInput { 380, 80, 100, 40 };
+TimeOffsetInput timeOffsetInput { 380, 120, 100, 40 };
 
 RootGroup root {
 	&channelButton,
 	&voltageShifterInput,
 	&timeBaseInput,
-	// &timeOffsetInput,
-	// new TwoLineDummyButton(380, 80,  100, 40, "Podstawa czasu", " -   2 us   + "),
-	new TwoLineDummyButton(380, 120, 100, 40,  "Przesuniecie" , " -   30 ms  + "),
+	&timeOffsetInput,
 	new TwoLineDummyButton(380, 160, 100, 40, "Tryb", " <  Ciagly  > "),
 	new TwoLineDummyButton(380, 200, 100, 40, "Trigger type", "_/ \\_ _||_ |_|"),
 	new TwoLineDummyButton(380, 240, 100, 40, "Trigger V", " -  2.00 V  + "),
@@ -60,7 +60,7 @@ RootGroup root {
 	 *      4) Podział zegara ADC (96 .. 65536)
 	 *      5) Rozdzielczość ADC (U8/U12)
 	 *      6) Częstotliwość testowa (x..y? GPIO 21)
-	 *      7) 
+	 *      7) Podstawa czasu???
 	 *      8) < Wróć 
 	*/
 };

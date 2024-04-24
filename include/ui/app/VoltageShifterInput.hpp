@@ -12,7 +12,9 @@ struct VoltageShifterInput : public RangeHorizontalInput
 			/*labels*/ "Napiecie", "<", ">", // TODO: Polish ę
 			/*sides labels font*/1, 
 			/*padding*/ 4, /*align*/ true)
-	{}
+	{
+		enableLongPressSpeedUp = false;
+	}
 
 	virtual const char* valueString() override;
 	virtual void onLeftAction() override;

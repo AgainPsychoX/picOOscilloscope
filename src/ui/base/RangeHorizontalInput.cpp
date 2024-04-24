@@ -3,6 +3,8 @@
 
 namespace ui {
 
+uint32_t RangeHorizontalInput::lastLongPressTickTime;
+
 void RangeHorizontalInput::draw()
 {
 	tft.drawRect(x, y, w, h, TFT_LIGHTGREY);
@@ -10,23 +12,36 @@ void RangeHorizontalInput::draw()
 	drawForeground();
 }
 
+void RangeHorizontalInput::update()
+{
+	if (enableLongPressSpeedUp && originalSidePressContinued && isLongPress()) {
+		if (isTimeForLongPressTick()) {
+			lastLongPressTickTime = now;
+			if (pressStartedOnLeft) {
+				onLeftAction();
+			}
+			else {
+				onRightAction();
+			}
+			drawBackgroundPressed();
+			drawForeground();
+		}
+	}
+}
+
 void RangeHorizontalInput::onPressDown(uint16_t sx, uint16_t sy)
 {
 	(void) sy; // unused
-	color_t leftColor = TFT_BLACK;
-	color_t rightColor = TFT_DARKGREY;
+	originalSidePressContinued = true;
 	pressStartedOnLeft = isLeft(sx);
-	if (pressStartedOnLeft) {
-		std::swap(leftColor, rightColor);
-	}
-	tft.fillRectHGradient(x + 1, y + 1, w - 2, h - 2, leftColor, rightColor);
+	drawBackgroundPressed();
 	drawForeground();
 }
 
 void RangeHorizontalInput::onPressUp(uint16_t sx, uint16_t sy)
 {
-	if (isHit(sx, sy)) {
-		if (isLeft(sx) == pressStartedOnLeft) {
+	if (!enableLongPressSpeedUp || !isLongPress()) {
+		if (isHit(sx, sy) && isLeft(sx) == pressStartedOnLeft) {
 			if (pressStartedOnLeft) {
 				onLeftAction();
 			}
@@ -35,11 +50,14 @@ void RangeHorizontalInput::onPressUp(uint16_t sx, uint16_t sy)
 			}
 		}
 	}
+	originalSidePressContinued = false;
 	draw();
 }
 
 void RangeHorizontalInput::onPressMove(uint16_t sx, uint16_t sy)
 {
+	originalSidePressContinued = 
+		isHit(sx, sy) && isLeft(sx) == pressStartedOnLeft;
 }
 
 void RangeHorizontalInput::drawForeground()
@@ -71,6 +89,16 @@ void RangeHorizontalInput::drawForeground()
 		// }
 		tft.textsize = textsize; // restore
 	}
+}
+
+void RangeHorizontalInput::drawBackgroundPressed()
+{
+	color_t leftColor = TFT_BLACK;
+	color_t rightColor = TFT_DARKGREY;
+	if (pressStartedOnLeft) {
+		std::swap(leftColor, rightColor);
+	}
+	tft.fillRectHGradient(x + 1, y + 1, w - 2, h - 2, leftColor, rightColor);
 }
 
 }

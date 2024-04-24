@@ -1,5 +1,6 @@
 #pragma once
 #include "Button.hpp"
+#include "ui/common.hpp"
 
 namespace ui {
 
@@ -17,13 +18,13 @@ struct RangeHorizontalInput : public Button
 	const char* leftLabel = "-";
 	/// Label for the right side.
 	const char* rightLabel = "+";
-	/// Font size to be used to draw the side labels. 0 to disable side labels.
-	uint8_t sidesFontSize = 1;
 	/// Padding, from border, to the side labels.
 	uint8_t sidesPadding = 4;
+	/// Font size to be used to draw the side labels. 0 to disable side labels.
+	uint8_t sidesFontSize : 4 = 1;
 	/// If true, sides labels will be vertically aligned with value string. 
 	/// If false, they will be vertically aligned in button center.
-	bool sidesAlignToValue = false;
+	bool sidesAlignToValue : 1 = false;
 
 	RangeHorizontalInput(
 		uint16_t x, uint16_t y, uint16_t w, uint16_t h, const char* centerLabel,
@@ -34,12 +35,13 @@ struct RangeHorizontalInput : public Button
 	) :
 		Button(x, y, w, h), centerLabel(centerLabel),
 		leftLabel(leftLabel), rightLabel(rightLabel), 
-		sidesFontSize(sidesFontSize == 255 ? (centerLabel ? 2 : 1) : sidesFontSize), 
 		sidesPadding(sidesPadding == 255 ? (h / 4) : sidesPadding), 
+		sidesFontSize(sidesFontSize == 255 ? (centerLabel ? 2 : 1) : sidesFontSize), 
 		sidesAlignToValue(sidesAlignToValue)
 	{};
 
 	virtual void draw() override;
+	virtual void update() override;
 
 	/// Ignore, use `onLeftAction` or `onRightAction` instead.
 	virtual void action() override {};
@@ -58,10 +60,49 @@ struct RangeHorizontalInput : public Button
 	virtual void onRightAction() = 0;
 
 protected:
-	bool pressStartedOnLeft;
-	inline bool isLeft(uint16_t sx)  { return sx < x + w / 2; }
+	/// Specifies if the press started on the left (true) or right side (false).
+	bool pressStartedOnLeft : 1;
+
+	/// Returns true if given X position is on the left side, false otherwise.
+	inline bool isLeft(uint16_t sx) const { return sx < x + w / 2; }
+
+	/// Indicates if the press on the original side is still continued.
+	/// NOT static, because it's used in `update` to fire the action even if the press is not moved.
+	bool originalSidePressContinued : 1 = false;
+
+	// TODO: maybe allow cross over from one side to another (via flag too?), 
+	//  allowing change in both directions by just moving around the center, 
+	//  maybe reseting the pressStartTime to longPressTimeThreshold 
+	//  to reset longPressTickInterval if it uses it.
+
+	bool enableLongPressSpeedUp : 1 = true;
+
+	/// Duration in milliseconds for long-press detection, 
+	/// after which firing the left or right action handler is speeded up.
+	constexpr static uint32_t longPressTimeThreshold = 500;
+
+	/// Returns true if the current press is long enough.
+	inline bool isLongPress() const
+	{
+		return now - pressStartTime > longPressTimeThreshold;
+	}
+
+	/// Last time the action handler was called due to long press.
+	/// Static, because only one button can be pressed at the same time.
+	static uint32_t lastLongPressTickTime;
+
+	/// Interval in milliseconds between long press ticks (firing the actions).
+	/// The higher the value, the slower the value changes on the long press.
+	/// Virtual to allow customization by passed time, by value, or other factors.
+	virtual uint16_t longPressTickInterval() const { return 250; }
+
+	inline bool isTimeForLongPressTick() const
+	{
+		return now - lastLongPressTickTime > longPressTickInterval();
+	}
 private:
 	void drawForeground();
+	void drawBackgroundPressed();
 };
 
 }

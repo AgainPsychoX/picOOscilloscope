@@ -13,7 +13,7 @@ struct TimeBaseInput : public RangeHorizontalInput
 			/*padding*/ 4, /*align*/ true)
 	{}
 
-	uint32_t value;
+	uint32_t value; // us
 
 	virtual const char* valueString() override;
 	virtual void onLeftAction() override;
