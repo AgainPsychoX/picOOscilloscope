@@ -85,13 +85,14 @@ void setup()
 void loop()
 {
 	using namespace ui;
-	
-	uint32_t now = to_ms_since_boot(get_absolute_time());
+
+	now = to_ms_since_boot(get_absolute_time());
 
 	bool detected = touch::getFiltered(pressX, pressY);
 	bool wasReleased = now - pressLastTime > 100;
 	if (wasReleased) {
 		if (detected) {
+			pressStartTime = now;
 			root.onPressDown(pressX, pressY);
 		}
 		else if (pressLastTime != notPressedTimeValue) {

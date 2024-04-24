@@ -18,6 +18,13 @@ constexpr color_t helperLineVoltageLabelColor = to565(RGB { 95, 95, 95 });
 ////////////////////////////////////////////////////////////////////////////////
 // Press state
 
+/// Current update cycle time, in milliseconds since boot.
+extern uint32_t now;
+
+/// Last time the press was started, in milliseconds since boot.
+/// Value stays set even if the press is released.
+extern uint32_t pressStartTime;
+
 /// Last time the press was detected, in milliseconds since boot; 
 /// or `notPressedTimeValue` if the press is not detected (or was released).
 extern uint32_t pressLastTime;
