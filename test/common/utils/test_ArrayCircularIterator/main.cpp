@@ -86,6 +86,50 @@ void test_decrementWithUnderflow()
 	TEST_ASSERT_EQUAL(*iter, 99);
 }
 
+void test_addWithoutOverflow()
+{
+	uint8_t array[] = { 0, 11, 22, 33, 44, 55, 66, 77, 88, 99 };
+	auto iter = ArrayCircularIterator<uint8_t, 10>(array, 3);
+
+	iter += 4;
+
+	TEST_ASSERT_EQUAL_PTR(iter.pointer, array + 7);
+	TEST_ASSERT_EQUAL(*iter, 77);
+}
+
+void test_addWithOverflow()
+{
+	uint8_t array[] = { 0, 11, 22, 33, 44, 55, 66, 77, 88, 99 };
+	auto iter = ArrayCircularIterator<uint8_t, 10>(array, 8);
+
+	iter += 4;
+
+	TEST_ASSERT_EQUAL_PTR(iter.pointer, array + 2);
+	TEST_ASSERT_EQUAL(*iter, 22);
+}
+
+void test_subtractWithoutUnderflow()
+{
+	uint8_t array[] = { 0, 11, 22, 33, 44, 55, 66, 77, 88, 99 };
+	auto iter = ArrayCircularIterator<uint8_t, 10>(array, 7);
+
+	iter -= 4;
+
+	TEST_ASSERT_EQUAL_PTR(iter.pointer, array + 3);
+	TEST_ASSERT_EQUAL(*iter, 33);
+}
+
+void test_subtractWithUnderflow()
+{
+	uint8_t array[] = { 0, 11, 22, 33, 44, 55, 66, 77, 88, 99 };
+	auto iter = ArrayCircularIterator<uint8_t, 10>(array, 2);
+
+	iter -= 4;
+
+	TEST_ASSERT_EQUAL_PTR(iter.pointer, array + 8);
+	TEST_ASSERT_EQUAL(*iter, 88);
+}
+
 int main()
 {
 	UNITY_BEGIN();
@@ -96,5 +140,9 @@ int main()
 	RUN_TEST(test_incrementWithOverflow);
 	RUN_TEST(test_decrementWithoutUnderflow);
 	RUN_TEST(test_decrementWithUnderflow);
+	RUN_TEST(test_addWithoutOverflow);
+	RUN_TEST(test_addWithOverflow);
+	RUN_TEST(test_subtractWithoutUnderflow);
+	RUN_TEST(test_subtractWithUnderflow);
 	UNITY_END();
 }

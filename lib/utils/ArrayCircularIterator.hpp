@@ -41,7 +41,7 @@ struct ArrayCircularIterator
 		while (offset >= size) [[unlikely]]
 			offset -= size;
 		if (offset >= samplesFromStart()) [[unlikely]]
-			return ArrayCircularIterator(begin, pointer + offset + size);
+			return ArrayCircularIterator(begin, pointer - offset + size);
 		else
 			return ArrayCircularIterator(begin, pointer - offset);
 	}
