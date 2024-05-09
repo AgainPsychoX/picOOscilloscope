@@ -37,6 +37,8 @@ struct PersistedConfig
 	touch::CalibrationData calibrationData;
 };
 
+#ifndef PIO_UNIT_TESTING
+
 void setup()
 {
 	sampling::voltage::init();
@@ -109,3 +111,5 @@ void loop()
 	root.update();
 	graph.update();
 }
+
+#endif // ifndef PIO_UNIT_TESTING

@@ -9,14 +9,6 @@ import sys
 Import('env' ,'projenv') # type: ignore
 env, projenv, DefaultEnvironment = env, projenv, DefaultEnvironment # type: ignore
 
-platform = env.PioPlatform()
-if env.GetProjectOption('board_build.core') == 'earlephilhower':
-	FRAMEWORK_DIR = Path(platform.get_package_dir('framework-arduinopico'))
-else:
-	FRAMEWORK_DIR = Path(platform.get_package_dir('framework-arduino-mbed'))
-framework_includes = list()
-filtered_cpppath = list()
-
 def expand_file_arguments(args):
 	def parse_file_contents(filename):
 		try:
@@ -78,24 +70,38 @@ def unroll_include_prefixes(args, change_to_system=False):
 
 	return processed_args
 
-# Apply these changes to current working env, the project env and the global env
-for e in (env, projenv, DefaultEnvironment()):
-	# Replace include paths provided via CPPPATH
-	for p in e['CPPPATH']:
-		# Is the current include path inside the framework directory?
-		if FRAMEWORK_DIR in Path(p).parents:
-			framework_includes.append(p)
-		else:
-			filtered_cpppath.append(p)
-	e.Replace(CPPPATH=filtered_cpppath)
-	e.Append(CCFLAGS=[('-isystem', p) for p in framework_includes])
+def stuff():
+	platform = env.PioPlatform()
+	core = env.GetProjectOption('board_build.core', None)
+	if core == None:
+		return # most likely native test runner,nothing to do
+	if core == 'earlephilhower':
+		FRAMEWORK_DIR = Path(platform.get_package_dir('framework-arduinopico'))
+	else:
+		FRAMEWORK_DIR = Path(platform.get_package_dir('framework-arduino-mbed'))
+	framework_includes = list()
+	filtered_cpppath = list()
 
-	# Some include paths are added via CCFLAGS
-	# In my case: reading arguments using `@file` and `-iprefix`/`-iwithprefix`/`-iwithprefixbefore` logic
-	# Also see https://github.com/earlephilhower/arduino-pico/issues/2095
-	# For now only prefixes are changed to system, so I opted for `change_to_system` argument,
-	# instead writing more proper `-I` to `-isystem` (even outside `i*prefix` things).
-	expanded = expand_file_arguments(e['CCFLAGS'])
-	processed = unroll_include_prefixes(expanded, change_to_system=True)
-	e.Replace(CCFLAGS=processed)
+	# Apply these changes to current working env, the project env and the global env
+	for e in (env, projenv, DefaultEnvironment()):
+		# Replace include paths provided via CPPPATH
+		for p in e['CPPPATH']:
+			# Is the current include path inside the framework directory?
+			if FRAMEWORK_DIR in Path(p).parents:
+				framework_includes.append(p)
+			else:
+				filtered_cpppath.append(p)
+		e.Replace(CPPPATH=filtered_cpppath)
+		e.Append(CCFLAGS=[('-isystem', p) for p in framework_includes])
 
+		# Some include paths are added via CCFLAGS
+		# In my case: reading arguments using `@file` and `-iprefix`/`-iwithprefix`/`-iwithprefixbefore` logic
+		# Also see https://github.com/earlephilhower/arduino-pico/issues/2095
+		# For now only prefixes are changed to system, so I opted for `change_to_system` argument,
+		# instead writing more proper `-I` to `-isystem` (even outside `i*prefix` things).
+		expanded = expand_file_arguments(e['CCFLAGS'])
+		processed = unroll_include_prefixes(expanded, change_to_system=True)
+		e.Replace(CCFLAGS=processed)
+
+stuff()
+# print(env.Dump())

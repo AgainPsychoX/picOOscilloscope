@@ -165,7 +165,9 @@ Total recording time? Assuming 40'000 samples:
 	+ Would require more testing, at least more rotations etc., but also other devices - which we don't have any at the moment.
 	+ By the way, library could use more examples with touch along the way, like saving calibration settings to EEPROM, hand-writing with smart lines, maybe simple paint etc.
 	+ Macros could be used to provide options (dynamic deadband error limit and other valid-touch filtering parameters).
-+ Consider refactoring some code (especially UI) into [private libraries](https://docs.platformio.org/en/latest/projectconf/sections/platformio/options/directory/lib_dir.html). This will allow [unit testing](https://docs.platformio.org/en/latest/advanced/unit-testing/index.html), could be useful for some UI elements (might require mocking TFT and some other things). Other way of unit testing is possible, but requires macros.
 + Unit tests :^)
+	+ See https://piolabs.com/blog/insights/unit-testing-part-1.html
+	+ See https://docs.platformio.org/en/latest/advanced/unit-testing/index.html
+	+ Consider refactoring some code into [private libraries](https://docs.platformio.org/en/latest/projectconf/sections/platformio/options/directory/lib_dir.html). 
 
 
