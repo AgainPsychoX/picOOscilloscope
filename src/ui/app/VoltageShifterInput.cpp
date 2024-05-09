@@ -1,6 +1,7 @@
 #include "ui/app/VoltageShifterInput.hpp"
 #include <cstdio> // snprintf
-#include "sampling.hpp"
+#include "sampling/ChannelSelection.hpp"
+#include "sampling/voltage.hpp"
 
 namespace ui {
 
@@ -32,8 +33,20 @@ const char* VoltageShifterInput::valueString()
 			}
 	}
 
-	snprintf(sharedBuffer, sizeof(sharedBuffer),
-		"%.2f +%.2fV", range.minVoltage(), range.maxVoltage());
+	// Convert mV to string (with sign, up to 2 decimal places, max width 4)
+	// TODO: consider avoiding printf here? https://godbolt.org/z/8o4Escvhb
+	int w = sprintf(sharedBuffer, "%+.4d", range.minVoltage());
+	char* p = sharedBuffer + w - 5;
+	p[4] = p[3];
+	p[3] = p[2];
+	p[2] = '.';
+	sharedBuffer[5] = ' ';
+	w = sprintf(sharedBuffer + 6, "%+.4d", range.maxVoltage());
+	p = sharedBuffer + 6 + w - 5;
+	p[4] = p[3];
+	p[3] = p[2];
+	p[2] = '.';
+	sharedBuffer[11] = 0;
 
 	return sharedBuffer;
 }

@@ -27,8 +27,6 @@ namespace ui {
 	I decided to go with using cells approach.
 */
 
-////////////////////////////////////////////////////////////////////////////////
-
 struct Graph : public Element
 {
 	uint16_t x;
@@ -39,6 +37,8 @@ struct Graph : public Element
 	static constexpr auto maxDivisionsPerDim = 12;
 	uint8_t widthDivisions;
 	uint8_t heightDivisions;
+	inline uint8_t heightDivisionsBelowZero() const { return heightDivisions / 2; }
+
 	uint8_t cellWidth;
 	uint8_t cellHeight;
 	uint8_t halfHeightWasted;
@@ -89,45 +89,7 @@ struct Graph : public Element
 
 	virtual const char* getYLabel(uint8_t cy) const;
 
-	virtual void drawSeries();
-};
-
-////////////////////////////////////////////////////////////////////////////////
-
-struct VoltageGraph : public Graph
-{
-	VoltageGraph(
-		uint16_t x, uint16_t y, uint16_t width, uint16_t height,
-		uint8_t widthDivisions, uint8_t heightDivisions
-	) 
-		: Graph(x, y, width, height, widthDivisions, heightDivisions)
-	{}
-
-	uint16_t yValueStep; // in mV
-
-	virtual const char* getYLabel(uint8_t cy) const;
-};
-
-////////////////////////////////////////////////////////////////////////////////
-// Setup & glue
-
-struct GraphDispatch : public Element
-{
-	bool lastWasSingle;
-
-	virtual void draw() override;
-	virtual void update() override;
-
-	/// Returns which graph should be currently active (by channel selection)
-	bool isSingleGraphActive() const;
-
-	/// Setups graph(s) for properly displaying current voltage range etc.
-	void setup();
-	void setupSingleGraph();
-	void setupSplitGraphs();
-
-	/// Returns width of cells that graph(s) are setup for.
-	uint8_t getCellWidth() const;
+	virtual void drawSeries() = 0;
 };
 
 }

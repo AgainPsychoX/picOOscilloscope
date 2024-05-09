@@ -5,7 +5,8 @@
 #include <CRC32.h>
 #include "common.hpp"
 #include "touch.hpp"
-#include "sampling.hpp"
+#include "sampling.hpp" // init, start
+#include "sampling/voltage.hpp" // init
 #include "ui/root.hpp"
 
 TFT_eSPI tft = TFT_eSPI();

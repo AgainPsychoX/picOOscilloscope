@@ -1,99 +1,97 @@
 #pragma once
-#include "common.hpp"
+#include "sampling/Resolution.hpp"
+#include "sampling/ChannelSelection.hpp"
+#include "ArrayCircularIterator.hpp"
 
 namespace sampling {
 
-namespace voltage {
+////////////////////////////////////////
+// Samples storage
 
-struct Range
-{
-	uint8_t id = 0;
-
-	inline bool s0Value() const { return id & 0b01; }
-	inline bool s1Value() const { return id & 0b10; }
-
-	float minVoltage() const;
-	float maxVoltage() const;
-
-	Range() = default;
-	Range(uint8_t id);
-
-	Range(bool s1Value, bool s0Value)
-		: id((s1Value << 1) | s0Value)
-	{}
-
-	inline bool operator==(const Range& other) const { return id == other.id; }
-	Range operator+(int8_t direction) const;
-};
-
-struct Shifter
-{
-	const uint8_t s0Pin;
-	const uint8_t s1Pin;
-
-	Shifter(uint8_t s0Pin, uint8_t s1Pin) : s0Pin(s0Pin), s1Pin(s1Pin) {}
-
-	void init();
-	void set(Range range);
-	Range get();
-};
-
-extern Shifter shifter[2]; // one per channel
-
-void init();
-
-}
-
-enum class Resolution : uint8_t
-{
-	U8 = 8U,
-	U12 = 12U,
-};
-extern Resolution resolution;
-
-class ChannelSelection
-{
-public:
-	enum Value : uint8_t
-	{
-		None            = 0b00000,
-		OnlyFirst       = 0b00001,
-		OnlySecond      = 0b00010,
-		BothSeparate    = 0b00011,
-		BothTogether    = 0b10011
-	};
-
-	constexpr bool first() const { return value & OnlyFirst; }
-	constexpr bool second() const { return value & OnlySecond; }
-	constexpr bool single() const { return first() ^ second(); }
-	constexpr bool both() const { return value & BothSeparate; }
-	constexpr bool together() const { return value & 0b10000; }
-
-	ChannelSelection() = default;
-	constexpr ChannelSelection(Value value) : value(value) {}
-	constexpr operator Value() const { return value; }
-	explicit operator bool() const = delete;
-private:
-	Value value;
-};
-extern ChannelSelection channelSelection;
-
+/// Buffer for the samples. 
+/// If `Resolution::U8` is used then should be reinterpreted as `uint8_t` 
+/// with double the length, as each `uint16_t` fits 2 samples; 
+/// If `Resolution::U12` is used then it's original array of `uint16_t`.
 extern uint16_t samplesBuffer[40000];
 
-size_t numberOfSamples();
+/// Pointer to (last) sampling window start (inside the samples buffer), 
+/// where first sample is being stored. 
+extern void* windowStart;
 
-/// Returns ADC clock base in Hz
-uint32_t clockBase();
+/// Returns current number of samples, for specific type (sample width).
+template <typename T>
+constexpr inline size_t getNumberOfSamples()
+{
+	// The -Wsizeof-array-div warning suppression using extra parenthesis 
+	// (which is suggested by in the warning itself) doesn't work inside templated code 
+	// See https://gcc.gnu.org/bugzilla/show_bug.cgi?id=114983
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wsizeof-array-div"
+	return sizeof(samplesBuffer) / (sizeof(T));
+#pragma GCC diagnostic pop
+}
 
-/// Clock divisor for ADC. Values below 96 means the same (fastest possible), 
+/// Type for samples buffer circular iterator with specific type (sample width).
+template <typename T>
+using SamplesCircularIterator = ArrayCircularIterator<T, getNumberOfSamples<T>()>;
+
+/// Prepares samples buffer circular iterator at window start position,
+/// with specific type (sample width).
+template <typename T>
+inline auto getSamplesIterator()
+{
+	return SamplesCircularIterator<T> {
+		reinterpret_cast<T*>(samplesBuffer),
+		reinterpret_cast<T*>(windowStart),
+	};
+}
+
+/// Returns current number of samples, depending on currently set resolution.
+inline size_t getNumberOfSamples()
+{
+	switch (resolution) {
+		default:
+		case Resolution::U8:    return sizeof(samplesBuffer);
+		case Resolution::U12:   return sizeof(samplesBuffer) / sizeof(*samplesBuffer);
+	}
+}
+
+/// Returns number of samples that should be captured and preserved for user
+/// to view before the trigger point.
+inline size_t getNumberOfPreTriggerSamples()
+{
+	return getNumberOfSamples() / 8; // TODO: make the fraction configurable
+}
+
+////////////////////////////////////////
+// Sampling settings
+
+/// Returns ADC currently selected clock base in Hz.
+uint32_t getClockBase();
+
+// TODO: getClockSource & setClockSource
+
+/// Returns clock divisor for ADC.
+uint16_t getClockDivisor();
+/// Sets clock divisor for the ADC. Values below 96 means the same (fastest), 
 /// because 96 clock cycles are required for the conversion to finish.
-extern uint16_t clockDivisor;
+/// Takes effect after (re)initialisation the sampling module.
+void setClockDivisor(uint16_t value);
 
-/// Returns total (for both channels) sample rate (per second)
-uint32_t totalSampleRate();
+/// Currently selected total (for both channels) sample rate (per second). 
+/// To change, se `setClockDivisor()` and/or`setClockSource()`.
+/// Takes effect after (re)initialisation the sampling module.
+uint32_t getSampleRate();
+/// Calculates sample rate based on given clock divisor.
+uint32_t calculateSampleRate(uint16_t clockDivisor);
 
-/// Returns sample rate for single channel
-uint32_t sampleRate();
+/// Returns time between samples in microseconds
+uint32_t getTimeBetweenSamples();
+/// Calculates sample rate based on given clock divisor.
+uint32_t calculateTimeBetweenSamples(uint32_t sampleRate);
+
+////////////////////////////////////////
+// Control
 
 bool isInitialized();
 
@@ -102,5 +100,7 @@ void deinit();
 
 void start();
 void stop();
+
+////////////////////////////////////////////////////////////////////////////////
 
 }

@@ -1,10 +1,7 @@
-#include "ui/app/Graphs.hpp"
+#include "ui/base/CelledGraph.hpp"
 #include "ui/tft.hpp"
-#include "sampling.hpp"
 
 namespace ui {
-
-////////////////////////////////////////////////////////////////////////////////
 
 void Graph::setWidthDivisions(uint8_t number)
 {
@@ -128,133 +125,6 @@ const char* Graph::getYLabel(uint8_t cy) const
 {
 	(void) cy; // unused in base
 	return nullptr;
-}
-
-void Graph::drawSeries()
-{
-	// TODO: ...
-}
-
-////////////////////////////////////////////////////////////////////////////////
-
-const char* VoltageGraph::getYLabel(uint8_t cy) const
-{
-	auto foo = heightDivisions / 2 - cy;
-	if (foo == 0) {
-		return nullptr;
-	}
-	int16_t mV = yValueStep * foo;
-	// TODO: consider avoiding printf here? https://godbolt.org/z/v6fM3Mxor 
-	int w = sprintf(sharedBuffer, "%+.4d", mV);
-	sharedBuffer[w - 1] = sharedBuffer[w - 2];
-	sharedBuffer[w - 2] = sharedBuffer[w - 3];
-	sharedBuffer[w - 3] = '.';
-	sharedBuffer[5] = 0;
-	// TODO: clear debug logging as trace log
-	// Serial.printf("cy=%u mV=%d buf='%s'\n", cy, mV, sharedBuffer);
-	return sharedBuffer;
-}
-
-////////////////////////////////////////////////////////////////////////////////
-// Setup & glue
-
-extern VoltageGraph singleGraph;
-extern VoltageGraph firstSplitGraph;
-extern VoltageGraph secondSplitGraph;
-
-extern GraphDispatch graphDispatch;
-
-void GraphDispatch::draw()
-{
-	using namespace sampling;
-	if (isSingleGraphActive()) {
-		setupSingleGraph();
-		singleGraph.draw();
-		lastWasSingle = true;
-	}
-	else /* both & separate */ {
-		setupSplitGraphs();
-		firstSplitGraph.draw();
-		secondSplitGraph.draw();
-		lastWasSingle = false;
-	}
-}
-
-void GraphDispatch::update()
-{
-	using namespace sampling;
-	if (isSingleGraphActive()) {
-		if (lastWasSingle) [[likely]] {
-			singleGraph.update();
-		}
-		else {
-			setupSingleGraph();
-			singleGraph.draw();
-			lastWasSingle = true;
-		}
-	}
-	else /* both channels selected separate view */ {
-		if (!lastWasSingle) [[likely]] {
-			firstSplitGraph.update();
-			secondSplitGraph.update();
-		}
-		else {
-			setupSplitGraphs();
-			firstSplitGraph.draw();
-			secondSplitGraph.draw();
-			lastWasSingle = false;
-		}
-	}
-}
-
-static const uint16_t yValueStepByRangeId[] = { 1000, 500, 250, 100 };
-static const uint16_t heightDivisionsByRangeId[] = { 12, 10, 10, 12 };
-
-bool GraphDispatch::isSingleGraphActive() const
-{
-	using namespace sampling;
-	return channelSelection.single() || channelSelection.together();
-}
-
-void GraphDispatch::setup()
-{
-	if (isSingleGraphActive())
-		setupSingleGraph();
-	else
-		setupSplitGraphs();
-}
-
-void GraphDispatch::setupSingleGraph()
-{
-	using namespace sampling;
-	uint8_t widest = 3; // starts with 3 which is narrowest range
-	if (channelSelection.first()) {
-		widest = voltage::shifter[0].get().id;
-	}
-	if (channelSelection.second()) {
-		widest = std::min(widest, voltage::shifter[1].get().id);
-	}
-	singleGraph.setHeightDivisions(heightDivisionsByRangeId[widest]);
-	singleGraph.yValueStep = yValueStepByRangeId[widest];
-}
-
-void GraphDispatch::setupSplitGraphs()
-{
-	using namespace sampling;
-	uint8_t id = voltage::shifter[0].get().id;
-	firstSplitGraph.setHeightDivisions(heightDivisionsByRangeId[id] / 2);
-	firstSplitGraph.yValueStep = yValueStepByRangeId[id] * 2;
-	/*****/ id = voltage::shifter[1].get().id;
-	secondSplitGraph.setHeightDivisions(heightDivisionsByRangeId[id] / 2);
-	secondSplitGraph.yValueStep = yValueStepByRangeId[id] * 2;
-}
-
-uint8_t GraphDispatch::getCellWidth() const
-{
-	if (isSingleGraphActive())
-		return singleGraph.cellWidth;
-	else
-		return firstSplitGraph.cellWidth;
 }
 
 }

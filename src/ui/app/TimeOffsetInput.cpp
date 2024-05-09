@@ -1,6 +1,6 @@
 #include "ui/app/TimeOffsetInput.hpp"
 #include "ui/app/TimeBaseInput.hpp"
-#include "ui/app/Graphs.hpp"
+#include "ui/app/GraphDispatch.hpp"
 #include "ui/tft.hpp"
 #include "utils.hpp"
 

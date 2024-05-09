@@ -4,7 +4,8 @@
 #include "ui/app/TimeBaseInput.hpp"
 #include "ui/app/TimeOffsetInput.hpp"
 #include "ui/app/DummyButton.hpp"
-#include "ui/app/Graphs.hpp"
+#include "ui/app/VoltageGraph.hpp"
+#include "ui/app/GraphDispatch.hpp"
 
 namespace ui {
 
@@ -31,15 +32,27 @@ VoltageShifterInput voltageShifterInput { 380, 40, 100, 40 };
 TimeBaseInput timeBaseInput { 380, 80, 100, 40 };
 TimeOffsetInput timeOffsetInput { 380, 120, 100, 40 };
 
+struct RefreshButton : public DummyButton
+{
+	RefreshButton()
+		: DummyButton(380, 280, 100, 40, "Refresh")
+	{}
+
+	virtual void action() override
+	{
+		graphDispatch.draw();
+	}
+};
+
 RootGroup root {
 	&channelButton,
 	&voltageShifterInput,
 	&timeBaseInput,
 	&timeOffsetInput,
-	new TwoLineDummyButton(380, 160, 100, 40, "Tryb", " <  Ciagly  > "),
-	new TwoLineDummyButton(380, 200, 100, 40, "Trigger type", "_/ \\_ _||_ |_|"),
-	new TwoLineDummyButton(380, 240, 100, 40, "Trigger V", " -  2.00 V  + "),
-	new TwoLineDummyButton(380, 280, 100, 40, "Trigger dT", " -   2 us   + "),
+	new TwoLineDummyButton(380, 160, 100, 40, "", ""),
+	new TwoLineDummyButton(380, 200, 100, 40, "", ""),
+	new TwoLineDummyButton(380, 240, 100, 40, "", ""),
+	new RefreshButton(),
 	/**
 	 *  TODO: rethink it once more (or when implementing?)
 	 * 
