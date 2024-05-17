@@ -1,7 +1,23 @@
 
-# DIY Oscilloscope using Raspberry Pico and touch display
+> [!WARNING]
+> Work in progress, see [To-do section](#to-do) for details.
 
-<!-- TODO: short description, images, features -->
+
+
+# picOOscilloscope
+
+Simple do-it-yourself oscilloscope using Raspberry Pico and touch display made for my dad.
+
+<table>
+	<tbody>
+		<tr>
+			<td colspan=2><img src="https://i.imgur.com/SB8LO1Q.jpeg" width="720" /></td>
+			<td><img src="https://i.imgur.com/oYApFc3.jpeg" width="400" /></td>
+		</tr>
+	</tbody>
+</table>
+
+<!-- TODO: better short description, images, features -->
 
 
 
@@ -67,6 +83,15 @@ Framework: Arduino ([`earlephilhower`](https://arduino-pico.readthedocs.io/en/la
 
 Library [TFT_eSPI](https://github.com/Bodmer/TFT_eSPI) was used to support the display, with the touch support built-in.<br/>
 
+### General idea
+
+Used processor RP2040 has 2 CPU cores and 12 DMA channels. ADC can be configured using round-robin to switch between channels and takes samples to special FIFO queue, and DMA then can take those samples to more proper buffer. This buffer will be scanned for fulfilling triggers by process on CPU 1, meanwhile CPU 0 will be responsible for setting everything up and operating UI on the display, including graphing the data.
+
+### User interface 
+
+There is single graph or split graphs displyed on left, and buttons for configuration and various features.
+<!-- TODO: write more here.  -->
+
 
 
 ## Notes
@@ -89,14 +114,40 @@ Total recording time? Assuming 40'000 samples:
 + fastest: 40'000 / 500KHz = 0.08s = 80ms
 + slowest: 40'000 / 1000Hz = 40s
 
+### Graphing
+
+Prefered voltage lines for graphs (symetrical by 0V):
++ Range 0: 0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00 V
++ Range 1: 0.00, 0.50, 1.00, 1.50, 2.00, 2.50 V
++ Range 2: 0.00, 0.25, 0.50, 0.75, 1.00, 1.25 V
++ Range 3: 0.00, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60 V
+
 ### To-do
 
+1. Graph!
+	+ Initial code is here, but it doesn't work (yet)! Time to debug...
+	+ Logging would be nice to have to allow some debugging...
+		+ Browse few of those, figure out categories/features
+		+ Create and fill the table with comparsions
+		+ (Unlikely) Figure how to adapt my own logging approach
+		+ Choose one of the approaches and stick with it for the project
+		+ ... did nice write up at https://github.com/earlephilhower/arduino-pico/discussions/2066 
+	+ Or, go and analyse it part by part
+	+ Or, actually debug it with second Pico? :monkaHmm: 
+2. UI
+	1. Offset (płynnie; z możliwością trzymania itd; na razie bez limitów i guess)
+	2. Menu od próbkowania itd, osobny przycisk albo przycisk
+		+ pewnie trzeba pogrupować, może: `root`, `topLevelMenu`, `samplingMenu`, `triggeringMenu` etc.
+		+ może pasuje poprawić `Group`
+		+ przy okazji pomyśleć co zrobić z bombelkowaniem przyciśnięcia, w szczególności jak się nakładają elementy, 
+			w przyszłości może być np. prompt czy alert albo coś innego co zasłania graf czy inne przyciski.
+	3. Sampling menu
+		1. (patrz TODO w `root.cpp`)
+3. Default values & persist with EEPROM
+4. Make it work ;)
+
++ Positive-only ranges, at least for graphing; maybe automatic if no negative voltage is detected.
 + Consider moving graphing stuff to separate namespace
-+ Prefered voltage lines for graphs (symetrical by 0V):
-	+ Range 0: 0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00 V
-	+ Range 1: 0.00, 0.50, 1.00, 1.50, 2.00, 2.50 V
-	+ Range 2: 0.00, 0.25, 0.50, 0.75, 1.00, 1.25 V
-	+ Range 3: 0.00, 0.10, 0.20, 0.30, 0.40, 0.50, 0.60 V
 + Consider using lower-level graphical functions to draw graph parts
 + Try fix touch issues
 	+ limit button hitbox?
@@ -159,6 +210,9 @@ Total recording time? Assuming 40'000 samples:
 		+ 45zł, 100 MSps, 8 bit, 1 CH https://www.mouser.pl/ProductDetail/Texas-Instruments/ADC08100CIMTC-NOPB?qs=7X5t%252BdzoRHDOkS2%252B9%2FZhUQ%3D%3D	
 	+ https://niconiconi.neocities.org/posts/list-of-mcu-with-fast-adc/
 	+ TLC5510 ? 
++ Other interesting projects related to Pico/Oscilloscopes:
+	+ https://github.com/ngscopeclient/scopehal/
+	+ https://github.com/ela-project/elascope/
 + Consider support for logical channels
 + Consider integrating new touch related code to into TFT library (refactor & create pull request): 
 	+ Could reduce memory usage tiny bit of us (no unused built-in code & calibration)
@@ -166,8 +220,9 @@ Total recording time? Assuming 40'000 samples:
 	+ By the way, library could use more examples with touch along the way, like saving calibration settings to EEPROM, hand-writing with smart lines, maybe simple paint etc.
 	+ Macros could be used to provide options (dynamic deadband error limit and other valid-touch filtering parameters).
 + Unit tests :^)
-	+ See https://piolabs.com/blog/insights/unit-testing-part-1.html
-	+ See https://docs.platformio.org/en/latest/advanced/unit-testing/index.html
+	+ [Unit testing documentation in PlatformIO](https://docs.platformio.org/en/latest/advanced/unit-testing/index.html)
+	+ [Unity Assertions Reference](https://github.com/ThrowTheSwitch/Unity/blob/master/docs/UnityAssertionsReference.md) 
+	+ [Basic unit testing in PlatformIO articles](https://piolabs.com/blog/insights/unit-testing-part-1.html)
 	+ Consider refactoring some code into [private libraries](https://docs.platformio.org/en/latest/projectconf/sections/platformio/options/directory/lib_dir.html). 
 
 
