@@ -3,6 +3,7 @@
 #include "ui/app/TimeOffsetInput.hpp"
 #include "ui/tft.hpp"
 #include "sampling.hpp"
+#include "logging.hpp"
 
 namespace ui {
 
@@ -24,7 +25,7 @@ const char* VoltageGraph::getYLabel(uint8_t cy) const
 	sharedBuffer[5] = 0;
 
 	// TODO: clear debug logging as trace log
-	// Serial.printf("cy=%u mV=%d buf='%s'\n", cy, mV, sharedBuffer);
+	LOG_TRACE("Graphing", "cy=%u mV=%d buf='%s'", cy, mV, sharedBuffer);
 	return sharedBuffer;
 }
 

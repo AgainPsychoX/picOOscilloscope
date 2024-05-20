@@ -2,7 +2,8 @@
 #include <limits>
 #include <cstdio> // snprintf
 #include <TFT_eSPI.h>
-#undef abs
+#undef abs // from Arduino
+#include "logging.hpp"
 
 extern TFT_eSPI tft; // from main
 
@@ -202,7 +203,7 @@ bool calibrate()
 
 		if (!anything) {
 			// Failed calibration, no touch detected after long time
-			if (Serial) Serial.println("Failed to calibrate!");
+			LOG_ERROR("Touch", "Failed to calibrate!");
 			tft.fillScreen(bgc);
 			tft.fillRect(0, 0, as+1, as+1, TFT_RED);
 			delay(1000);

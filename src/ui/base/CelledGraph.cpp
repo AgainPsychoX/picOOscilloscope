@@ -1,5 +1,6 @@
 #include "ui/base/CelledGraph.hpp"
 #include "ui/tft.hpp"
+#include "logging.hpp"
 
 namespace ui {
 
@@ -40,7 +41,7 @@ void Graph::draw()
 		}
 	}
 
-	// auto us_start = to_us_since_boot(get_absolute_time());
+	auto us_start = to_us_since_boot(get_absolute_time());
 
 	tft.setTextDatum(CC_DATUM);
 	tft.setTextColor(helperLineVoltageLabelColor, TFT_BLACK);
@@ -58,8 +59,10 @@ void Graph::draw()
 	cellDirtyBitset.reset(/*all*/);
 	fullyDirty = false;
 
-	// auto us_end = to_us_since_boot(get_absolute_time());
-	// Serial.printf("Graph draw took %llu\n", us_end - us_start);
+	drawSeries();
+
+	auto us_end = to_us_since_boot(get_absolute_time());
+	LOG_TRACE("Graphing", "Draw took %lluus", us_end - us_start);
 }
 
 void Graph::update()
@@ -67,8 +70,9 @@ void Graph::update()
 	if (fullyDirty)
 		return draw();
 
-	// auto us_start = to_us_since_boot(get_absolute_time());
-	// unsigned int cellsCount = 0;
+	// TODO: make those logging variables present only in debug/trace
+	auto us_start = to_us_since_boot(get_absolute_time());
+	unsigned int cellsCount = 0;
 
 	tft.setTextDatum(CC_DATUM);
 	tft.setTextColor(helperLineVoltageLabelColor, TFT_BLACK);
@@ -87,10 +91,11 @@ void Graph::update()
 		sy += cellHeight;
 	}
 
-	// TODO: clear debug logging as trace log
-	// auto us_end = to_us_since_boot(get_absolute_time());
-	// Serial.printf("Graph update with %u cells took %llu\n", 
-	// 	cellsCount, us_end - us_start);
+	drawSeries();
+
+	auto us_end = to_us_since_boot(get_absolute_time());
+	LOG_TRACE("Graphing", "Update with %u cells took %lluus", 
+		cellsCount, us_end - us_start);
 }
 
 void Graph::drawCell(uint8_t cx, uint8_t cy, uint16_t sx, uint16_t sy)

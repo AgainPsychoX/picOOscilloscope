@@ -13,6 +13,8 @@
 		"isystem",
 		"iwithprefix",
 		"iwithprefixbefore",
+		"LIBC",
+		"lluus",
 		"mbed",
 		"NAND",
 		"projenv",

@@ -4,6 +4,7 @@
 #include <EEPROM.h>
 #include <CRC32.h>
 #include "common.hpp"
+#include "logging.hpp"
 #include "touch.hpp"
 #include "sampling.hpp" // init, start
 #include "sampling/voltage.hpp" // init
@@ -56,12 +57,12 @@ void setup()
 	if (config.calculateChecksum() == config.checksum) {
 		// Allow for touch recalibration on start
 		if (touch::anywhere()) {
-			// TODO: LOG_DEBUG("Touch re-calibration requested");
+			LOG_DEBUG("Touch", "Re-calibration requested");
 			startTouchCalibration = true;
 		}
 	}
 	else /* checksum miss-match */ {
-		// TODO: LOG_ERROR("Persisted config checksum miss-match, reseting to default")
+		LOG_ERROR("EEPROM", "Persisted config checksum miss-match, reseting to default")
 		startTouchCalibration = true;
 	}
 
