@@ -52,7 +52,9 @@ However, base/original/old Arduino core might have no `printf` support, then you
 
 #### Arduino-Pico
 
-When using the [Earle Philhower's Arduino-Pico core](https://github.com/earlephilhower/arduino-pico) for Raspberry Pi Pico (RP2040) you can specify custom Arduino `Print`-compatible target `DEBUG_RP2040_PORT` (usually `Serial`, or `Serial1/2`) if you want to use `stdout` things. However it's not necessary, as `printf` is added on `Print` by default.
+When using the [Earle Philhower's Arduino-Pico core](https://github.com/earlephilhower/arduino-pico) for Raspberry Pi Pico (RP2040) if you want to use `stdout` things you have to specify custom Arduino `Print`-compatible target `DEBUG_RP2040_PORT` (usually `Serial`, or `Serial1/2`)[^1]. However it's not necessary, as Arduino has `Print::printf` extension which is used by the logging library by default.
+
+[^1]: See [this comment](https://github.com/earlephilhower/arduino-pico/issues/1433#issuecomment-1540354673) and [this comment](https://github.com/earlephilhower/arduino-pico/issues/1433#issuecomment-1546783109) at Arduino-Pico issue about `printf`. Also you can visit [standard output related `_write` implementation](https://github.com/earlephilhower/arduino-pico/blob/11814823ed4ace4224fe9ea03686de53387fb193/cores/rp2040/posix.cpp#L36-L48) using `DEBUG_RP2040_PORT` in the Arduino-Pico sources.
 
 
 #### ESP-IDF

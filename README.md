@@ -30,8 +30,8 @@ Touch chipset: [XPT2046](https://grobotronics.com/images/datasheets/xpt2046-data
 
 ### Microcontroller pins usage
 
-| Pin | GPIO | Notes                                                           |
-|-----|------|-----------------------------------------------------------------|
+| Pin | GPIO | Notes                                                          |
+|-----|------|----------------------------------------------------------------|
 |   1 |    0 | Reserved for UART0 TX                                          |
 |   2 |    1 | Reserved for UART0 RX                                          |
 |   3 |  GND | Ground                                                         |
@@ -96,6 +96,9 @@ There is single graph or split graphs displyed on left, and buttons for configur
 
 ## Notes
 
+Aside from below, you might want to visit also: 
++ [`./test/embedded/README.md`](./test/embedded/README.md) for notes about testing on Pico using PlatformIO with Arduino-Pico core and ThrowTheSwitch Unity testing framework - there were few gotchas.
+
 ### ADC
 
 Without overclocking, ADC uses USB PLL clock with is 48MHz. The ADC apparently needs 96 clock cycles for sample conversion. See RP2040 datasheet at chapter 4.9. for ADC details.
@@ -126,6 +129,7 @@ Prefered voltage lines for graphs (symetrical by 0V):
 
 1. Graph!
 	+ Initial code is here, but it doesn't work (yet)! Time to debug...
+		+ Write few tests: Generate some predicatable patterns into the samples buffer and try figure out what is going on...
 	+ Logging would be nice to have to allow some debugging...
 		+ Browse few of those, figure out categories/features
 		+ Create and fill the table with comparsions
@@ -146,6 +150,9 @@ Prefered voltage lines for graphs (symetrical by 0V):
 3. Default values & persist with EEPROM
 4. Make it work ;)
 
++ Some reusable code for interactive logging:
+	+ Prompt for user to do action using the touch display to pass/fail.
+	+ Use watchdog to exit tests that hang-up/end up in infinite loop or something.
 + Positive-only ranges, at least for graphing; maybe automatic if no negative voltage is detected.
 + Consider moving graphing stuff to separate namespace
 + Consider using lower-level graphical functions to draw graph parts
