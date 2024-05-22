@@ -130,7 +130,7 @@ void test_subtractWithUnderflow()
 	TEST_ASSERT_EQUAL(*iter, 88);
 }
 
-int main()
+extern "C" void setup()
 {
 	UNITY_BEGIN();
 	RUN_TEST(test_constructsWithoutOffsetFromCppArray);
@@ -146,3 +146,5 @@ int main()
 	RUN_TEST(test_subtractWithUnderflow);
 	UNITY_END();
 }
+
+extern "C" void loop() {}
