@@ -65,18 +65,21 @@ void unityOutputStart();
 #endif
 
 ////////////////////////////////////////////////////////////////////////////////
-#else /* ifndef ARDUINO */
+#endif /* ifndef ARDUINO */
 
-// #ifdef __cplusplus
-// extern "C" {
-// #endif
+// Define `setup` & `loop` for Arduino program entry compatibility from native,
+// and to avoid making `extern "C"` being needed to be added in common tests.
 
-// void setup();
-// void loop();
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-// #ifdef __cplusplus
-// }
-// #endif
+void setup();
+void loop();
+
+#ifdef __cplusplus
+}
+#endif
 
 ////////////////////////////////////////////////////////////////////////////////
-#endif /* ifndef ARDUINO */
+// #endif /* ifndef ARDUINO */
