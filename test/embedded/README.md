@@ -104,7 +104,11 @@ If you put it in `loop` it still should work - the test runner will just get fir
 
 #### Unresponsive Pico issue
 
-If you ended up with unresponsive Pico, it might be because you implemented `main` somewhere by accident, and Arduino-Pico own `main` (with all the important setup) was not executed. You might want to manually write valid UF2 file (even simple blink) to your Pico.
+If you ended up with unresponsive Pico, reasons might include:
++ You implemented `main` somewhere by accident, and Arduino-Pico own `main` (with all the important setup) was not executed. 
++ The code might hung-up on infinite loop, and there is no watchdog setup to reset the Pico (or it itself results in infinite restart loop).
+
+**Solution**: You might want to build and manually put valid UF2 file (even simple blink) onto your Pico, by pressing the BOOTSEL button while powering up the board.
 
 
 

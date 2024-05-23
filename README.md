@@ -152,7 +152,11 @@ Prefered voltage lines for graphs (symetrical by 0V):
 
 + Some reusable code for interactive logging:
 	+ Prompt for user to do action using the touch display to pass/fail.
-	+ Use watchdog to exit tests that hang-up/end up in infinite loop or something.
+	+ Use watchdog to exit tests that hang-up/end up in infinite loop or something. It's not that easy:
+		+ See https://github.com/raspberrypi/pico-examples/blob/master/watchdog/hello_watchdog/hello_watchdog.c
+		+ Watchdog restarts the program to starting state (or preconfigured state within SRAM)
+		+ There are few scratch registers to save data; could save index of the failing test and/or overall state which tests are failing.
+		+ For now, it doesn't seem worth to work on this.
 + Positive-only ranges, at least for graphing; maybe automatic if no negative voltage is detected.
 + Consider moving graphing stuff to separate namespace
 + Consider using lower-level graphical functions to draw graph parts
