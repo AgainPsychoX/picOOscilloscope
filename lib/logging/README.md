@@ -70,13 +70,39 @@ Depending on platform & desired output channel, you need to prepare `stdout` cor
 
 Helpful article: [AVR and printf by Jason Bauer](https://efundies.com/avr-and-printf/) or [forum post on AVRFreaks](https://www.avrfreaks.net/s/topic/a5C3l000000UHT5EAO/t080941).
 
+#### Custom output
+
+You can provide custom output function using `LOG_PRINTF` macro, which need to be `printf` like function, taking variadic arguments. By default it's platform specific: on Arduino it's `Serial.print`-based, and other (e.g. ESP32, Pico, AVR) it's `stdout` based: regular `printf` and `puts`.
 
 
-### Custom output
 
-You can provide custom output function using `LOG_PRINTF` macro, which need to be `printf` like function, taking variadic arguments. By default it's platform specific: on Arduino it's `Serial.print`-based, and other (e.g. ESP32 & Pico) it's `stdout` based: regular `printf` and `puts`.
+### Inside library
 
+If used inside library, the library could use own header itself, maybe utilizing macros in order to give the library user the some control. 
 
+<!-- TODO: Also, if you include if from header files, you might want to define `LOG_???` before including `logging_base.hpp` to avoid variables names collisions if the `logging_base` is included multiple times (like, by two libraries and/or project). -->
+
+Example:
+```c++
+#include <logging_base.hpp>
+
+#ifndef MY_LIB_LOG_DEFAULT
+#define MY_LIB_LOG_DEFAULT LOG_LEVEL_NONE
+#endif
+USE_LOG_LEVEL_DEFAULT(MY_LIB_LOG_DEFAULT);
+
+#ifndef MY_LIB_LOG_FOO_LEVEL 
+#define MY_LIB_LOG_FOO_LEVEL MY_LIB_LOG_DEFAULT
+#endif
+USE_LOG_LEVEL("MyLib-Foo", MY_LIB_LOG_FOO_LEVEL);
+
+#ifndef MY_LIB_LOG_BAR_LEVEL 
+#define MY_LIB_LOG_BAR_LEVEL MY_LIB_LOG_DEFAULT
+#endif
+USE_LOG_LEVEL("MyLib-Bar", MY_LIB_LOG_BAR_LEVEL);
+```
+
+If you want user to be able to have all logging configuration in single place, there is `logging_somewhere.hpp` header available that tries to look around for your project `logging.hpp`. It should work in PlatformIO based environments, and you should have some `#ifndef LOG_INFO` to guard for a case when the project doesn't have proper `logging.hpp` file (or it couldn't be found).
 
 
 

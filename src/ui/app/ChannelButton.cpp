@@ -1,5 +1,5 @@
 #include "ui/app/ChannelButton.hpp"
-#include "ui/tft.hpp"
+#include "tft.hpp"
 #include "sampling/ChannelSelection.hpp"
 
 namespace ui {

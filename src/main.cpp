@@ -3,8 +3,7 @@
 #include <TFT_eSPI.h>
 #include <EEPROM.h>
 #include <CRC32.h>
-#include "common.hpp"
-#include "logging.hpp"
+#include <logging.hpp>
 #include "touch.hpp"
 #include "sampling.hpp" // init, start
 #include "sampling/voltage.hpp" // init

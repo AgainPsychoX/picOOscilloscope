@@ -1,9 +1,9 @@
 #include "ui/app/VoltageGraph.hpp"
+#include <logging.hpp>
+#include <tft.hpp>
 #include "ui/app/TimeBaseInput.hpp"
 #include "ui/app/TimeOffsetInput.hpp"
-#include "ui/tft.hpp"
 #include "sampling.hpp"
-#include "logging.hpp"
 
 namespace ui {
 
@@ -25,7 +25,7 @@ const char* VoltageGraph::getYLabel(uint8_t cy) const
 	sharedBuffer[5] = 0;
 
 	// TODO: clear debug logging as trace log
-	LOG_TRACE("Graphing", "cy=%u mV=%d buf='%s'", cy, mV, sharedBuffer);
+	LOG_TRACE("Graphing", "getYLabel cy=%u mV=%d buf='%s'", cy, mV, sharedBuffer);
 	return sharedBuffer;
 }
 

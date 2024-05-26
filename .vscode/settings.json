@@ -15,6 +15,7 @@
 		"iwithprefix",
 		"iwithprefixbefore",
 		"LIBC",
+		"libdeps",
 		"lluus",
 		"mbed",
 		"NAND",

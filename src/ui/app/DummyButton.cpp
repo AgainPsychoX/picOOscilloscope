@@ -1,5 +1,5 @@
 #include "ui/app/DummyButton.hpp"
-#include "ui/tft.hpp"
+#include "tft.hpp"
 
 namespace ui {
 
