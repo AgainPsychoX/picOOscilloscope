@@ -19,11 +19,6 @@ VoltageGraph secondSplitGraph { 0, 160, 380, 160, 10, 12 };
 
 GraphDispatch graphDispatch;
 
-// TODO: better way to share it to main, maybe go fix TODO in Group constructor,
-//  and put graphDispatch in root; also would allow separating out sub-groups 
-//  for various menu levels on right side...
-Element& graph = graphDispatch;
-
 ////////////////////////////////////////////////////////////////////////////////
 // Top level menu
 
@@ -44,7 +39,10 @@ struct RefreshButton : public DummyButton
 	}
 };
 
+#ifndef PIO_UNIT_TESTING
+
 RootGroup root {
+	&graphDispatch,
 	&channelButton,
 	&voltageShifterInput,
 	&timeBaseInput,
@@ -78,17 +76,10 @@ RootGroup root {
 	*/
 };
 
-////////////////////////////////////////////////////////////////////////////////
-// Extra glue code between active elements
+#else // PIO_UNIT_TESTING
 
-void ChannelButton::updateVoltageShifterInput()
-{
-	voltageShifterInput.draw();
-}
+RootGroup root;
 
-void VoltageShifterInput::updateGraphs()
-{
-	graphDispatch.setup();
-}
+#endif // PIO_UNIT_TESTING
 
 }

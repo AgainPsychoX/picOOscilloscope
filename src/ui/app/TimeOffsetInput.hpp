@@ -23,7 +23,7 @@ protected:
 	virtual uint16_t longPressTickInterval() const override;
 
 	/// Optimal minimal amount should make the graph(s) move by single pixel
-	uint16_t getOptimalStep() const;
+	uint16_t getOptimalStep() const; // glue
 };
 
 }

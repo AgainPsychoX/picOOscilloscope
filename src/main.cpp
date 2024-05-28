@@ -2,40 +2,40 @@
 #include <SPI.h>
 #include <TFT_eSPI.h>
 #include <EEPROM.h>
-#include <CRC32.h>
 #include <logging.hpp>
-#include "touch.hpp"
+#include "PersistedConfig.hpp"
 #include "sampling.hpp" // init, start
 #include "sampling/voltage.hpp" // init
 #include "ui/root.hpp"
 
 TFT_eSPI tft = TFT_eSPI();
 
-struct PersistedConfig
+void processTouchEventsForUI(ui::RootGroup& root)
 {
-	////////////////////////////////////////
-	// 0x000 - 0x020: Checksum
+	using namespace ui;
 
-	uint8_t _emptyBeginPad[28];
-	uint32_t checksum;
+	now = to_ms_since_boot(get_absolute_time());
 
-	uint32_t calculateChecksum() {
-		constexpr uint16_t prefixLength = offsetof(PersistedConfig, checksum) + sizeof(checksum);
-		return CRC32::calculate(reinterpret_cast<uint8_t*>(this) + prefixLength, sizeof(PersistedConfig) - prefixLength);
+	bool detected = touch::getFiltered(pressX, pressY);
+	bool wasReleased = now - pressLastTime > 100;
+	if (wasReleased) {
+		if (detected) {
+			pressStartTime = now;
+			root.onPressDown(pressX, pressY);
+		}
+		else if (pressLastTime != notPressedTimeValue) {
+			pressLastTime = notPressedTimeValue;
+			root.onPressUp(pressX, pressY);
+		}
 	}
-
-	bool prepareForSave() {
-		uint32_t calculatedChecksum = calculateChecksum();
-		bool changed = checksum != calculatedChecksum;
-		checksum = calculatedChecksum;
-		return changed;
+	if (detected) {
+		pressLastTime = now;
+		root.onPressMove(pressX, pressY);
 	}
+}
 
-	////////////////////////////////////////
-	// 0x020 - ...: Touch calibration data
-
-	touch::CalibrationData calibrationData;
-};
+////////////////////////////////////////////////////////////////////////////////
+// Main application
 
 #ifndef PIO_UNIT_TESTING
 
@@ -79,7 +79,6 @@ void setup()
 	tft.setTextFont(2);
 	tft.setTextColor(TFT_WHITE); // also makes font background transparent, avoiding filling
 	ui::root.draw();
-	ui::graph.draw();
 
 	sampling::init();
 	sampling::start();
@@ -87,29 +86,8 @@ void setup()
 
 void loop()
 {
-	using namespace ui;
-
-	now = to_ms_since_boot(get_absolute_time());
-
-	bool detected = touch::getFiltered(pressX, pressY);
-	bool wasReleased = now - pressLastTime > 100;
-	if (wasReleased) {
-		if (detected) {
-			pressStartTime = now;
-			root.onPressDown(pressX, pressY);
-		}
-		else if (pressLastTime != notPressedTimeValue) {
-			pressLastTime = notPressedTimeValue;
-			root.onPressUp(pressX, pressY);
-		}
-	}
-	if (detected) {
-		pressLastTime = now;
-		root.onPressMove(pressX, pressY);
-	}
-
-	root.update();
-	graph.update();
+	processTouchEventsForUI(ui::root);
+	ui::root.update();
 }
 
 #endif // ifndef PIO_UNIT_TESTING

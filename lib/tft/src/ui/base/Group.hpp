@@ -1,5 +1,6 @@
 #pragma once
 #include <utility>
+#include <metaprogramming.hpp>
 #include "ui/base/Button.hpp"
 
 namespace ui {
@@ -33,6 +34,11 @@ protected:
 
 	TContainer<Element*> others;
 
+	template <typename T>
+	struct IsButton : std::is_base_of<Button, T> {};
+	template <typename T>
+	struct IsButtonPtr : std::is_base_of<Button, std::remove_pointer_t<T>> {};
+
 public:
 	/// Construct empty group
 	Group()
@@ -42,9 +48,16 @@ public:
 	template<typename... Ts>
 	inline Group(Ts&&... args)
 	{
-		// TODO: separate buttons and elements to separate containers
-		buttons.reserve(sizeof...(args));
-		(buttons.emplace_back(std::forward<Ts>(args)), ...);
+		using TButtons = mp::filter<IsButtonPtr, Ts...>;
+		buttons.reserve(TButtons::length);
+		others.reserve(sizeof...(args) - TButtons::length);
+
+		([&] {
+			if constexpr (std::is_base_of_v<Button, std::remove_pointer_t<decltype(args)>>)
+				buttons.emplace_back(std::forward<Ts>(args));
+			else
+				others.emplace_back(std::forward<Ts>(args));
+		} (), ...);
 	}
 
 	// TODO: figure out how to make more static thing (no allocs)

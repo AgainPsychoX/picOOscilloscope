@@ -68,6 +68,20 @@ struct ArrayCircularIterator
 		return *this;
 	}
 
+	inline ArrayCircularIterator operator++(int)
+	{
+		auto tmp = *this;
+		++*this;
+		return tmp;
+	}
+
+	inline ArrayCircularIterator operator--(int)
+	{
+		auto tmp = *this;
+		--*this;
+		return tmp;
+	}
+
 private:
 	/// Normalize offset to the range [0, size). Used in the constructors.
 	static inline std::size_t normalizeOffset(std::size_t offset)
