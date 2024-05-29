@@ -1,4 +1,5 @@
 #pragma once
+#include "ui/common.hpp"
 #include "Rectangle.hpp"
 
 namespace ui {
@@ -6,6 +7,11 @@ namespace ui {
 /// Base button class
 struct Button : public Rectangle
 {
+	static constexpr color_t defaultTextColor = colors::to565(colors::white);
+	static constexpr color_t defaultBorderColor = colors::to565(colors::RGB { 211, 211, 211 });
+	static constexpr color_t defaultBackgroundColor = colors::to565(colors::black);
+	static constexpr color_t defaultPressedBackgroundColor = colors::to565(colors::RGB { 128, 128, 128 });
+
 	Button(uint16_t x, uint16_t y, uint16_t w, uint16_t h)
 		: Rectangle(x, y, w, h)
 	{}

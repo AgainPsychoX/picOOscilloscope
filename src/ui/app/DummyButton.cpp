@@ -5,15 +5,15 @@ namespace ui {
 
 void TwoLineDummyButton::draw()
 {
-	draw(TFT_BLACK);
+	draw(defaultBackgroundColor);
 }
 
 void TwoLineDummyButton::draw(color_t backgroundColor)
 {
-	tft.drawRect(x, y, w, h, TFT_LIGHTGREY);
+	tft.drawRect(x, y, w, h, defaultBorderColor);
 	tft.fillRect(x + 1, y + 1, w - 2, h - 2, backgroundColor);
 
-	tft.setTextColor(TFT_WHITE, backgroundColor);
+	tft.setTextColor(defaultTextColor, backgroundColor);
 	auto fh = tft.fontHeight();
 	auto xc = x + w / 2;
 	auto yc = y + h / 2;
@@ -31,7 +31,7 @@ void TwoLineDummyButton::draw(color_t backgroundColor)
 void TwoLineDummyButton::onPressDown(uint16_t sx, uint16_t sy)
 {
 	(void) sx; (void) sy; // unused
-	draw(TFT_DARKGREY);
+	draw(defaultPressedBackgroundColor);
 }
 
 }

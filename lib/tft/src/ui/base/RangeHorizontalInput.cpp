@@ -7,8 +7,8 @@ uint32_t RangeHorizontalInput::lastLongPressTickTime;
 
 void RangeHorizontalInput::draw()
 {
-	tft.drawRect(x, y, w, h, TFT_LIGHTGREY);
-	tft.fillRect(x + 1, y + 1, w - 2, h - 2, TFT_BLACK);
+	tft.drawRect(x, y, w, h, defaultBorderColor);
+	tft.fillRect(x + 1, y + 1, w - 2, h - 2, defaultBackgroundColor);
 	drawForeground();
 }
 
@@ -62,7 +62,7 @@ void RangeHorizontalInput::onPressMove(uint16_t sx, uint16_t sy)
 
 void RangeHorizontalInput::drawForeground()
 {
-	tft.setTextColor(TFT_WHITE);
+	tft.setTextColor(defaultTextColor);
 	auto fh = tft.fontHeight();
 	auto xc = x + w / 2;
 	auto yc = y + h / 2;
@@ -93,8 +93,8 @@ void RangeHorizontalInput::drawForeground()
 
 void RangeHorizontalInput::drawBackgroundPressed()
 {
-	color_t leftColor = TFT_BLACK;
-	color_t rightColor = TFT_DARKGREY;
+	color_t leftColor = defaultBackgroundColor;
+	color_t rightColor = defaultPressedBackgroundColor;
 	if (pressStartedOnLeft) {
 		std::swap(leftColor, rightColor);
 	}

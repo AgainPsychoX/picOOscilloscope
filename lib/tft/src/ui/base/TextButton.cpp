@@ -5,22 +5,22 @@ namespace ui {
 
 void TextButton::draw()
 {
-	draw(TFT_BLACK);
+	draw(defaultBackgroundColor);
 }
 
 void TextButton::onPressDown(uint16_t sx, uint16_t sy)
 {
 	(void) sx; (void) sy; // unused
-	draw(TFT_DARKGREY);
+	draw(defaultPressedBackgroundColor);
 }
 
 void TextButton::draw(uint16_t backgroundColor)
 {
-	tft.drawRect(x, y, w, h, TFT_LIGHTGREY);
+	tft.drawRect(x, y, w, h, defaultBorderColor);
 	tft.fillRect(x + 1, y + 1, w - 2, h - 2, backgroundColor);
 
 	tft.setTextDatum(CC_DATUM);
-	tft.setTextColor(TFT_WHITE, backgroundColor);
+	tft.setTextColor(defaultTextColor, backgroundColor);
 	tft.drawString(text, x + w / 2, y + h / 2);
 }
 

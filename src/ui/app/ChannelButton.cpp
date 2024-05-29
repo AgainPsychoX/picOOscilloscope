@@ -32,35 +32,35 @@ void ChannelButton::action()
 void ChannelButton::onPressDown(uint16_t sx, uint16_t sy)
 {
 	(void) sx; (void) sy; // unused
-	draw(TFT_DARKGREY);
+	draw(defaultPressedBackgroundColor);
 }
 void ChannelButton::draw()
 {
-	draw(TFT_BLACK);
+	draw(defaultBackgroundColor);
 }
 
 void ChannelButton::draw(color_t backgroundColor)
 {
-	tft.drawRect(x, y, w, h, TFT_LIGHTGREY);
+	tft.drawRect(x, y, w, h, defaultBorderColor);
 	tft.fillRect(x + 1, y + 1, w - 2, h - 2, backgroundColor);
 
 	tft.setTextDatum(TC_DATUM);
-	tft.setTextColor(TFT_WHITE, backgroundColor);
+	tft.setTextColor(defaultTextColor, backgroundColor);
 	tft.drawString("Wybor kanalu", x + w / 2, y + 2);
 	// TODO: Polish ó and ł, maybe by overlapping: o' and -l, or custom font
 
 	tft.setTextDatum(BC_DATUM);
 	color_t c;
 
-	c = sampling::channelSelection.first() ? channel1Color :  TFT_DARKGREY;
+	c = sampling::channelSelection.first() ? channel1Color :  defaultPressedBackgroundColor;
 	tft.setTextColor(c, backgroundColor);
 	tft.drawString("CH1", x + w / 4, y + h - 1);
 
-	c = sampling::channelSelection.together() ? TFT_WHITE :  TFT_DARKGREY;
+	c = sampling::channelSelection.together() ? defaultTextColor :  defaultPressedBackgroundColor;
 	tft.setTextColor(c, backgroundColor);
 	tft.drawString("+", x + w / 2, y + h - 1);
 
-	c = sampling::channelSelection.second() ? channel2Color :  TFT_DARKGREY;
+	c = sampling::channelSelection.second() ? channel2Color :  defaultPressedBackgroundColor;
 	tft.setTextColor(c, backgroundColor);
 	tft.drawString("CH2", x + w - w / 4, y + h - 1);
 }
