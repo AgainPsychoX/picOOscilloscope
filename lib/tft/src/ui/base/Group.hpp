@@ -8,6 +8,50 @@ namespace ui {
 template <template<typename...> typename TContainer>
 class Group : public Element
 {
+	////////////////////////////////////////
+	// Elements
+public:
+	TContainer<Button*> buttons; // buttons, also have press events
+	TContainer<Element*> others; // other elements, only drawing and updating
+
+protected:
+	/// Helper struct to check if the type is a Button.
+	/// Used in templated constructor.
+	template <typename T>
+	struct IsButton : std::is_base_of<Button, std::remove_pointer_t<T>> {};
+
+	////////////////////////////////////////
+	// Constructors
+public:
+	/// Construct empty group
+	Group()
+	{}
+
+	/// Constructs group with specified elements
+	template<typename... Ts>
+	inline Group(Ts&&... args)
+	{
+		using TButtons = mp::filter<IsButton, Ts...>;
+		buttons.reserve(TButtons::length);
+		others.reserve(sizeof...(args) - TButtons::length);
+
+		([&] {
+			if constexpr (std::is_base_of_v<Button, std::remove_pointer_t<std::remove_reference_t<decltype(args)>>>)
+				buttons.emplace_back(std::forward<Ts>(args));
+			else
+				others.emplace_back(std::forward<Ts>(args));
+		} (), ...);
+	}
+
+	// TODO: figure out how to make more static thing (no allocs)
+
+	~Group()
+	{
+		// TODO: ? free the pointers? or use smart pointers?
+	}
+
+	////////////////////////////////////////
+	// Hiding (skipping drawing & interactions)
 private:
 	bool hidden = false; // skip drawing & interactions if true
 public:
@@ -28,45 +72,8 @@ public:
 		return hidden;
 	}
 
-protected:
-	Button* pressedButton = nullptr; // TODO: need to be invalidated/fixed after modifying buttons collection
-	TContainer<Button*> buttons;
-
-	TContainer<Element*> others;
-
-	template <typename T>
-	struct IsButton : std::is_base_of<Button, T> {};
-	template <typename T>
-	struct IsButtonPtr : std::is_base_of<Button, std::remove_pointer_t<T>> {};
-
-public:
-	/// Construct empty group
-	Group()
-	{}
-
-	/// Constructs group with specifies elements
-	template<typename... Ts>
-	inline Group(Ts&&... args)
-	{
-		using TButtons = mp::filter<IsButtonPtr, Ts...>;
-		buttons.reserve(TButtons::length);
-		others.reserve(sizeof...(args) - TButtons::length);
-
-		([&] {
-			if constexpr (std::is_base_of_v<Button, std::remove_pointer_t<decltype(args)>>)
-				buttons.emplace_back(std::forward<Ts>(args));
-			else
-				others.emplace_back(std::forward<Ts>(args));
-		} (), ...);
-	}
-
-	// TODO: figure out how to make more static thing (no allocs)
-
-	~Group()
-	{
-		// TODO: ? free the pointers? or use smart pointers?
-	}
-
+	////////////////////////////////////////
+	// Element drawing & update cascading
 public:
 	virtual void draw() override
 	{
@@ -91,6 +98,13 @@ public:
 			button->update();
 		}
 	}
+
+	////////////////////////////////////////
+	// Press state
+public:
+	/// Holds pointer to currently pressed button or `nullptr` if none.
+	/// Might need to be invalidated/fixed after modifying buttons collection.
+	Button* pressedButton = nullptr;
 
 	void onPressDown(uint16_t x, uint16_t y)
 	{

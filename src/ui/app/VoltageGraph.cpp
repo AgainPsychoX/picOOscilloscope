@@ -1,6 +1,6 @@
 #include "ui/app/VoltageGraph.hpp"
-#include <logging.hpp>
 #include <tft.hpp>
+#include "logging.hpp"
 #include "ui/app/TimeBaseInput.hpp"
 #include "ui/app/TimeOffsetInput.hpp"
 #include "sampling.hpp"

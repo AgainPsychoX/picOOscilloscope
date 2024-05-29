@@ -2,7 +2,7 @@
 #include <SPI.h>
 #include <TFT_eSPI.h>
 #include <EEPROM.h>
-#include <logging.hpp>
+#include "logging.hpp"
 #include "PersistedConfig.hpp"
 #include "sampling.hpp" // init, start
 #include "sampling/voltage.hpp" // init
