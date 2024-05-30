@@ -116,7 +116,7 @@ If you ended up with unresponsive Pico, reasons might include:
 
 Aside from PlatformIO general "Test" button, you can use command line for more options.
 
-`pio test --help`
+[`pio test --help`](https://docs.platformio.org/en/latest/core/userguide/cmd_test.html)
 ```
 Usage: pio test [OPTIONS]
 
@@ -147,3 +147,10 @@ Options:
 ```
 
 Aside from the button I usually use `pio test -e pico -v --filter embedded/interactive/*` (or even more specific). At least single `-v` is required if you want see the log from the target device and the execution times for given tests.
+
+To run ignored test ([`test_ignore`](https://docs.platformio.org/en/latest/projectconf/sections/env/options/test/test_ignore.html) set in `platformio.ini`), use something like `pio test -e pico --filter embedded/interactive/other/* --ignore NONE -v`. 
+
+#### Debugging
+
+Debugging the tests is possible. Aside from setting `debug_tool = cmsis-dap`, use `debug_test = embedded/interactive/ui/app/test_VoltageGraph` and start the debugging from VS Code. Only one test at the time can be debugged. You might want to delete/comment it before committing to Git, or if you want to go back to main application code. 
+
