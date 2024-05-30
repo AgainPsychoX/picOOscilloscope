@@ -23,7 +23,7 @@ Simple do-it-yourself oscilloscope using Raspberry Pico and touch display made f
 
 ## Hardware 
 
-Microcontroller: [Raspberry Pi Pico](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html)<br/>
+Microcontroller: [Raspberry Pi Pico](https://datasheets.raspberrypi.com/pico/pico-datasheet.pdf) with [RP2040](https://datasheets.raspberrypi.com/rp2040/rp2040-datasheet.pdf)<br/>
 Display: [4'' TFT SPI ST7796 480x320](http://www.lcdwiki.com/4.0inch_SPI_Module_ST7796)<br/>
 Display driver: [ST7796(S)](https://www.displayfuture.com/Display/datasheet/controller/ST7796s.pdf)<br/>
 Touch chipset: [XPT2046](https://grobotronics.com/images/datasheets/xpt2046-datasheet.pdf)<br/>
@@ -55,7 +55,7 @@ Touch chipset: [XPT2046](https://grobotronics.com/images/datasheets/xpt2046-data
 
 Based on [_Scoppy_](https://github.com/fhdm-dev/scoppy) (other closed source Pico oscilloscope) [analog front-end examples](https://oscilloscope.fhdm.xyz/wiki/Analog-Front-End-Examples), including [FSCOPE-500K Rev 4e](https://oshwlab.com/fruitloop57/fscope-250k5-v2_copy_copy_copy_copy).
 
-The front-end this project uses the more complex, dual channel with 4 voltage ranges, portection, 10X probe compatibility, input impedance of 1M||22pF, etc. [Simulation using CircuitJS](https://www.falstad.com/circuit/circuitjs.html?ctz=CQAgjCAMB0l3BWcMBsBmALAJhQdgWgJwAcYKCFI6ISCkNApgLRhgBQAhiE1pMSGl7dCKAUMIDoablmhIw8eFFiLcZXIUgYUO4nkLT6CxWwDmMvgK0ysGK3fqQ2YXFm4Is-LAlFMEuUW9RelxlESpuYOUkADUAewAbABcOUwY2AGN3TxAg7gwMLx8ocGZQxxV2LKY0YjtefiYCr0t6WSxmVm4YQgRCfs9BSF60UYgYOHYAd2yi3w8W-icZpsLc4tXFqDYVhdzLTf2ltgAnfLW8mrr1qOMTFdr6g8eb7YATbjJwQjcWQOK3G8GAAzDgAV2SbA+NQ8rxhbjAP1yICBoIhSTYACVuGhYYjfriEQUSvQMPQ0FISdEsTjrPjaXYwMTHCAyTI5FSYAhTp8AnDwnlyWgTNUXKIyPQmOEJSUMNBcJ1xlJ1IQApg+kzgpUdrzAgcxa9ljIARs8qNgjqeJZzcbRDajTwTb4DYLMrrwGBftLPSUwHJFcpJoHINN3TKWHyGtsVtKUJKBa0eVL-s6UyUfHAoQzvgTrHlASDwZDzH8c59xXzHJwQMRyUJ6UMQBIKYZkIoKsKyLjhbX-FhbFhylIQ+QXMMiPhcRA7pmVl8zW5XTNBK8V-adWu0KJawIt9GxK89q6zghiTu4-wd0ZeJmT8TWG4Lx63PQM7eaPe+U+DW1cPAeaeTz8E+Uakn+ThnE+jZ4G4jZGLOZbQdaQhOAA8lQrhiCEQiNuMZjgPecbgERMpVlkO5RkyQG+mUyidqOf4GKqBAIEqkxurG178KRwbwP0-ECYJ-TBmxIY6lRxFGMSoE0juK47qWLJsi2nJyDyO4PjWdYlKM-5nHkBq4ZWu7vgZxK4cyNBxhBrxyUIV7gDeNl5GsjZrNeCESVG+aJjMLlzFp+5mfUxQ-paLyXIShrhbCkV5sUDrCiFvj5glOoaURFG+YFUZydYRpPueliaQVxU+t+lY6hVoggdltXAchVYzBl9AaT6DoJo0AppTGabJlh2zof1jY1LB9b7nsEmsUSDg6kexSTcyc0+lGgFHBNPoGmtYUzGtO7TYFRoHZp23tWwAAyA2lp4jRfEYICggkADODCSIYF0DfOxDcVE9CPS9b1BcUFGhUtfmhZGALZbhPptS+H0HWsezuSU-2vSpTjQCAuAYAAEgAwmSHgAPpoDEaDEwAyuANA1uA0hgAAmkYzbIkz078EgCKMwioSBOAjMM-zCIAFrgEg9S5Mz+zYwIUsQLYcvSFgPO5BAdpS8r0h2MrYv9rT0gAKIADoABay7BICU0YDPIpT04OMiACCAB2bwAOIcEkDCGwkAC2xtPQggcoIHYDGycrse17Pv+4HwdPcQgdYBHUee97vsB0HgeEIHaCp276ex1nCcKIHGAF9HGdx09rBhynT2h5Hhcx5nYfh7X+eJ5XRdt7XFe1w3ufN1XxdhwPYBd2XJwAJIuwAbgwJzeycfeT-XEdz4vy9L2vE-h83HAJHEpiU1MACWSQZKba+l6HT0V7PC9Lyvfe4PHBdHyfZ+X9ft9h+-J6+dD7H1PhfK+N8a5gFLknJ6KcQHf3AX-KBpdc610-qAn+EC+79mTpAMOGDEG-0gVnXBcCB7wNdl-MBxCcENywB3YBVDMFIJIcnehXcHDG2TtwoBUheEtkDvgnhQiBH8KesIuBvDJGCIkbwlOoi87iMkQovh+clFdxUdIsRmj5HaI0YoqRhjZGSK5DowxZiDFyLwbwmc7Z8HWIkXIcxjjeC2PsYoQxbiw4ePgF4yRdj2z+Pcb4hxKiAmhLCfIiJoTgk+NCWwDACgrpfC3LdcU2M8aE0gCTMmFNqYOIbg4jGPC5FqKgKU2RJSpFlOqUUjRFSanFMpIUqxdTRHlLCc4zpQjul1IcYExQjSzE9LgQMyJjS3G1wmYU8ZoTJlzN8Qs+JSzZkrI8cs6ZCSgA) was created, for fun and exploration of the idea. Thanks to that, one can easily understand how the voltage is shifted. It uses two [74HC4052](https://www.sparkfun.com/datasheets/Components/General/74HC4052.pdf) dual 4-channel analog switch/(de)multiplexer; I even [recreated the 74HC4052 inside the simulation](https://github.com/pfalstad/circuitjs1/issues/76#issuecomment-2019215612) too (custom compontent). Basically, the compontent takes 2 digital inptus from the microproessing, which allow for selecting pair of resistors: for voltage division and shift.
+The front-end this project uses the more complex, dual channel with 4 voltage ranges, protection, 10X probe compatibility, input impedance of 1M||22pF, etc. [Simulation using CircuitJS](https://www.falstad.com/circuit/circuitjs.html?ctz=CQAgjCAMB0l3BWcMBsBmALAJhQdgWgJwAcYKCFI6ISCkNApgLRhgBQAhiE1pMSGl7dCKAUMIDoablmhIw8eFFiLcZXIUgYUO4nkLT6CxWwDmMvgK0ysGK3fqQ2YXFm4Is-LAlFMEuUW9RelxlESpuYOUkADUAewAbABcOUwY2AGN3TxAg7gwMLx8ocGZQxxV2LKY0YjtefiYCr0t6WSxmVm4YQgRCfs9BSF60UYgYOHYAd2yi3w8W-icZpsLc4tXFqDYVhdzLTf2ltgAnfLW8mrr1qOMTFdr6g8eb7YATbjJwQjcWQOK3G8GAAzDgAV2SbA+NQ8rxhbjAP1yICBoIhSTYACVuGhYYjfriEQUSvQMPQ0FISdEsTjrPjaXYwMTHCAyTI5FSYAhTp8AnDwnlyWgTNUXKIyPQmOEJSUMNBcJ1xlJ1IQApg+kzgpUdrzAgcxa9ljIARs8qNgjqeJZzcbRDajTwTb4DYLMrrwGBftLPSUwHJFcpJoHINN3TKWHyGtsVtKUJKBa0eVL-s6UyUfHAoQzvgTrHlASDwZDzH8c59xXzHJwQMRyUJ6UMQBIKYZkIoKsKyLjhbX-FhbFhylIQ+QXMMiPhcRA7pmVl8zW5XTNBK8V-adWu0KJawIt9GxK89q6zghiTu4-wd0ZeJmT8TWG4Lx63PQM7eaPe+U+DW1cPAeaeTz8E+Uakn+ThnE+jZ4G4jZGLOZbQdaQhOAA8lQrhiCEQiNuMZjgPecbgERMpVlkO5RkyQG+mUyidqOf4GKqBAIEqkxurG178KRwbwP0-ECYJ-TBmxIY6lRxFGMSoE0juK47qWLJsi2nJyDyO4PjWdYlKM-5nHkBq4ZWu7vgZxK4cyNBxhBrxyUIV7gDeNl5GsjZrNeCESVG+aJjMLlzFp+5mfUxQ-paLyXIShrhbCkV5sUDrCiFvj5glOoaURFG+YFUZydYRpPueliaQVxU+t+lY6hVoggdltXAchVYzBl9AaT6DoJo0AppTGabJlh2zof1jY1LB9b7nsEmsUSDg6kexSTcyc0+lGgFHBNPoGmtYUzGtO7TYFRoHZp23tWwAAyA2lp4jRfEYICggkADODCSIYF0DfOxDcVE9CPS9b1BcUFGhUtfmhZGALZbhPptS+H0HWsezuSU-2vSpTjQCAuAYAAEgAwmSHgAPpoDEaDEwAyuANA1uA0hgAAmkYzbIkz078EgCKMwioSBOAjMM-zCIAFrgEg9S5Mz+zYwIUsQLYcvSFgPO5BAdpS8r0h2MrYv9rT0gAKIADoABay7BICU0YDPIpT04OMiACCAB2bwAOIcEkDCGwkAC2xtPQggcoIHYDGycrse17Pv+4HwdPcQgdYBHUee97vsB0HgeEIHaCp276ex1nCcKIHGAF9HGdx09rBhynT2h5Hhcx5nYfh7X+eJ5XRdt7XFe1w3ufN1XxdhwPYBd2XJwAJIuwAbgwJzeycfeT-XEdz4vy9L2vE-h83HAJHEpiU1MACWSQZKba+l6HT0V7PC9Lyvfe4PHBdHyfZ+X9ft9h+-J6+dD7H1PhfK+N8a5gFLknJ6KcQHf3AX-KBpdc610-qAn+EC+79mTpAMOGDEG-0gVnXBcCB7wNdl-MBxCcENywB3YBVDMFIJIcnehXcHDG2TtwoBUheEtkDvgnhQiBH8KesIuBvDJGCIkbwlOoi87iMkQovh+clFdxUdIsRmj5HaI0YoqRhjZGSK5DowxZiDFyLwbwmc7Z8HWIkXIcxjjeC2PsYoQxbiw4ePgF4yRdj2z+Pcb4hxKiAmhLCfIiJoTgk+NCWwDACgrpfC3LdcU2M8aE0gCTMmFNqYOIbg4jGPC5FqKgKU2RJSpFlOqUUjRFSanFMpIUqxdTRHlLCc4zpQjul1IcYExQjSzE9LgQMyJjS3G1wmYU8ZoTJlzN8Qs+JSzZkrI8cs6ZCSgA) was created, for fun and exploration of the idea. Thanks to that, one can easily understand how the voltage is shifted. It uses two [74HC4052](https://www.sparkfun.com/datasheets/Components/General/74HC4052.pdf) dual 4-channel analog switch/(de)multiplexer; I even [recreated the 74HC4052 inside the simulation](https://github.com/pfalstad/circuitjs1/issues/76#issuecomment-2019215612) too (custom component). Basically, the component takes 2 digital inputs from the microprocessing, which allow for selecting pair of resistors: for voltage division and shift.
 
 | Range ID | Min voltage | Max voltage | S1 | S0 | 
 |:--------:|:-----------:|:-----------:|:--:|:--:|
@@ -68,7 +68,7 @@ The front-end this project uses the more complex, dual channel with 4 voltage ra
 
 ### Display hardware fix
 
-[An issue was reported](https://github.com/Bodmer/TFT_eSPI/issues/3261) to the library for controlling the display (and touch) for weird behaviour of display and touch SPI bus sharing misbehaving, resulting in visual gliches affecting last draw instructions right before switching SPI to talk with the touch controller. It turned out, the display was affected by a hardware bug. Explanation, origin and workaround (hardware modification) for [the bug are described in TFT_eSPI issues by Bodmer](https://github.com/Bodmer/TFT_eSPI/discussions/898) (maintainer of the library). The proposed modification was applied as workaround in this project: shorting one of diodes on the display board. 
+[An issue was reported](https://github.com/Bodmer/TFT_eSPI/issues/3261) to the library for controlling the display (and touch) for weird behaviour of display and touch SPI bus sharing misbehaving, resulting in visual glitches affecting last draw instructions right before switching SPI to talk with the touch controller. It turned out, the display was affected by a hardware bug. Explanation, origin and workaround (hardware modification) for [the bug are described in TFT_eSPI issues by Bodmer](https://github.com/Bodmer/TFT_eSPI/discussions/898) (maintainer of the library). The proposed modification was applied as workaround in this project: shorting one of diodes on the display board. 
 
 
 
@@ -89,7 +89,7 @@ Used processor RP2040 has 2 CPU cores and 12 DMA channels. ADC can be configured
 
 ### User interface 
 
-There is single graph or split graphs displyed on left, and buttons for configuration and various features.
+There is single graph or split graphs displayed on left, and buttons for configuration and various features.
 <!-- TODO: write more here.  -->
 
 
@@ -107,8 +107,8 @@ Debugging Raspberry Pi Pico is pretty easy in PlatformIO.
 + [Wire it up properly](https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf#page=70). 
 + Only single line is required to be added to `platformio.ini` file: `debug_tool = cmsis-dap`; but you might want to [see other options in docs](https://docs.platformio.org/en/latest/projectconf/sections/env/options/debug/index.html).
 + From now on you can add breakpoints and just go Run and Debug > PIO Debug and play around!
-+ To debug tests, you add extra line to `platformio.ini`, like `debug_test = embedded/interactive/ui/app/test_VoltageGraph`. Note to self: make sure to delete/comment it before commiting to Git, or if you want to go back to main application code. 
-+ In my case, I was able to skip connecting the two cables for UART0 since I use USB serial port (default with Arduino-Pico). Of course, it requires both debuggger Pico and target Pico be connected to USB, and you might need to specify which port is which. If you get `Error erasing flash with vFlashErase packet` error, disconnect both boards, connect debugger first, then target, and start the debugging again. The USB behaviour while generally working might be acting up if you place breakpoints along the way.
++ To debug tests, you add extra line to `platformio.ini`, like `debug_test = embedded/interactive/ui/app/test_VoltageGraph`. Note to self: make sure to delete/comment it before committing to Git, or if you want to go back to main application code. 
++ In my case, I was able to skip connecting the two cables for UART0 since I use USB serial port (default with Arduino-Pico). Of course, it requires both debugger Pico and target Pico be connected to USB, and you might need to specify which port is which. If you get `Error erasing flash with vFlashErase packet` error, disconnect both boards, connect debugger first, then target, and start the debugging again. The USB behaviour while generally working might be acting up if you place breakpoints along the way.
 + See [more PlatformIO docs about debugging](https://docs.platformio.org/en/latest/plus/debugging.html). 
 
 ### ADC
@@ -131,7 +131,7 @@ Total recording time? Assuming 40'000 samples:
 
 ### Graphing
 
-Prefered voltage lines for graphs (symetrical by 0V):
+Preferred voltage lines for graphs (symmetrical by 0V):
 + Range 0: 0.00, 1.00, 2.00, 3.00, 4.00, 5.00, 6.00 V
 + Range 1: 0.00, 0.50, 1.00, 1.50, 2.00, 2.50 V
 + Range 2: 0.00, 0.25, 0.50, 0.75, 1.00, 1.25 V
@@ -141,14 +141,15 @@ Prefered voltage lines for graphs (symetrical by 0V):
 
 1. Graph!
 	+ Initial code is here, but it doesn't work (yet)! Time to debug...
-		+ Write few tests: Generate some predicatable patterns into the samples buffer and try figure out what is going on...
+		+ Write few tests: Generate some predictable patterns into the samples buffer and try figure out what is going on...
+		+ Crashes on moving offset?
 	+ Logging would be nice to have to allow some debugging...
 		+ Browse few of those, figure out categories/features
-		+ Create and fill the table with comparsions
+		+ Create and fill the table with comparisons
 		+ (Unlikely) Figure how to adapt my own logging approach
 		+ Choose one of the approaches and stick with it for the project
 		+ ... did nice write up at https://github.com/earlephilhower/arduino-pico/discussions/2066 
-	+ Or, go and analyse it part by part
+	+ Or, go and analyze it part by part
 	+ Or, actually debug it with second Pico? :monkaHmm: 
 2. UI
 	1. Offset (płynnie; z możliwością trzymania itd; na razie bez limitów i guess)
@@ -209,7 +210,7 @@ Prefered voltage lines for graphs (symetrical by 0V):
 	+ ...
 + Watch https://www.youtube.com/watch?v=rDDiPzJpI18 , try to understand "unofficial" speeds
 + Multi-language support, most likely configured on compile time
-	+ Polish - including speical characters outside ASCII (custom fonts or fixing by overlapping characters/pixel drawings)
+	+ Polish - including special characters outside ASCII (custom fonts or fixing by overlapping characters/pixel drawings)
 	+ English
 + Overclocking? 
 	+ https://forums.raspberrypi.com/viewtopic.php?t=340691
