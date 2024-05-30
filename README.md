@@ -99,6 +99,18 @@ There is single graph or split graphs displyed on left, and buttons for configur
 Aside from below, you might want to visit also: 
 + [`./test/embedded/README.md`](./test/embedded/README.md) for notes about testing on Pico using PlatformIO with Arduino-Pico core and ThrowTheSwitch Unity testing framework - there were few gotchas.
 
+### Debugging
+
+Debugging Raspberry Pi Pico is pretty easy in PlatformIO.
+
++ Get extra Pico board and [flash it with picoprobe firmware](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html#debugging-using-another-raspberry-pi-pico).
++ [Wire it up properly](https://datasheets.raspberrypi.com/pico/getting-started-with-pico.pdf#page=70). 
++ Only single line is required to be added to `platformio.ini` file: `debug_tool = cmsis-dap`; but you might want to [see other options in docs](https://docs.platformio.org/en/latest/projectconf/sections/env/options/debug/index.html).
++ From now on you can add breakpoints and just go Run and Debug > PIO Debug and play around!
++ To debug tests, you add extra line to `platformio.ini`, like `debug_test = embedded/interactive/ui/app/test_VoltageGraph`. Note to self: make sure to delete/comment it before commiting to Git, or if you want to go back to main application code. 
++ In my case, I was able to skip connecting the two cables for UART0 since I use USB serial port (default with Arduino-Pico). Of course, it requires both debuggger Pico and target Pico be connected to USB, and you might need to specify which port is which. If you get `Error erasing flash with vFlashErase packet` error, disconnect both boards, connect debugger first, then target, and start the debugging again. The USB behaviour while generally working might be acting up if you place breakpoints along the way.
++ See [more PlatformIO docs about debugging](https://docs.platformio.org/en/latest/plus/debugging.html). 
+
 ### ADC
 
 Without overclocking, ADC uses USB PLL clock with is 48MHz. The ADC apparently needs 96 clock cycles for sample conversion. See RP2040 datasheet at chapter 4.9. for ADC details.
