@@ -73,10 +73,11 @@ uint32_t getClockBase();
 
 // TODO: getClockSource & setClockSource
 
-/// Returns clock divisor for ADC.
+/// Returns clock divisor for ADC. Value 0 means 2^16 clock cycles.
 uint16_t getClockDivisor();
-/// Sets clock divisor for the ADC. Values below 96 means the same (fastest), 
-/// because 96 clock cycles are required for the conversion to finish.
+/// Sets clock divisor for the ADC. Value 0 means 2^16 clock cycles.
+/// Values below 96 means the same (fastest), because 96 clock cycles 
+/// are required for the conversion to finish.
 /// Takes effect after (re)initialisation the sampling module.
 void setClockDivisor(uint16_t value);
 
@@ -87,9 +88,9 @@ uint32_t getSampleRate();
 /// Calculates sample rate based on given clock divisor.
 uint32_t calculateSampleRate(uint16_t clockDivisor);
 
-/// Returns time between samples in microseconds
+/// Returns time between samples in microseconds.
 uint32_t getTimeBetweenSamples();
-/// Calculates sample rate based on given clock divisor.
+/// Calculates time between samples in microseconds based on given sample rate.
 uint32_t calculateTimeBetweenSamples(uint32_t sampleRate);
 
 ////////////////////////////////////////

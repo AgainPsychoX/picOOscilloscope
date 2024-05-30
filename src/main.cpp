@@ -7,8 +7,15 @@
 #include "sampling.hpp" // init, start
 #include "sampling/voltage.hpp" // init
 #include "ui/root.hpp"
+#include "ui/app/TimeBaseInput.hpp"
+#include "ui/app/GraphDispatch.hpp"
 
 TFT_eSPI tft = TFT_eSPI();
+
+namespace ui {
+	extern TimeBaseInput timeBaseInput;
+	extern GraphDispatch graphDispatch;
+}
 
 void processTouchEventsForUI(ui::RootGroup& root)
 {
@@ -79,6 +86,11 @@ void setup()
 	tft.setTextFont(2);
 	tft.setTextColor(TFT_WHITE); // also makes font background transparent, avoiding filling
 	ui::root.draw();
+
+	// TODO: include sampling config in PersistedConfig
+	sampling::setClockDivisor(96);
+	ui::timeBaseInput.value = ui::graphDispatch.getCellWidth() * 2;
+	// TODO: maybe integrate root.cpp into main.cpp? 
 
 	sampling::init();
 	sampling::start();

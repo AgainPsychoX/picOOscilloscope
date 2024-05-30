@@ -69,6 +69,10 @@ void setUp(void)
 
 	sampling::channelSelection = sampling::ChannelSelection::OnlyFirst;
 	sampling::resolution = sampling::Resolution::U8;
+	sampling::setClockDivisor(96); // will result in fastest sampling rate
+
+	// One sample per pixel, assuming default fastest sampling rate
+	ui::timeBaseInput.value = ui::graphDispatch.getCellWidth() * 2;
 
 	ui::root = {
 		&ui::graphDispatch,

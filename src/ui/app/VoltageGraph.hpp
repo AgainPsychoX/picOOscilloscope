@@ -23,16 +23,16 @@ struct VoltageGraph : public Graph
 
 protected:
 	/// Multiplier to be applied to raw value.
-	uint32_t valueGraphingMultiplier;
+	uint_fast32_t valueGraphingMultiplier;
 	/// Shift (before dividing, added to the multiplied raw value) to cover for 
 	/// the difference between voltage at the bottom Y and `range.minVoltage()`.
-	uint32_t valueGraphingShift;
+	uint_fast32_t valueGraphingShift;
 	/// Divider to bring the intermediate value to number of pixels, 
 	/// to be subtracted from bottom Y.
-	uint32_t valueGraphingDividerForHeight;
+	uint_fast32_t valueGraphingDividerForHeight;
 	// Most bottom of the graph, screen Y, which height will be subtracted from
 	// to get final screen Y.
-	uint16_t valueGraphingBottomScreenY;
+	uint_fast16_t valueGraphingBottomScreenY;
 };
 
 }

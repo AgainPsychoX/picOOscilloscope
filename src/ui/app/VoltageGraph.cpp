@@ -92,7 +92,7 @@ void VoltageGraph::drawSeries()
 					a -= samplesPerPixelDivisor;
 
 					uint8_t value = p.get();
-					
+
 					uint_fast16_t h =
 						(value * valueGraphingMultiplier + valueGraphingShift)
 						/ valueGraphingDividerForHeight;
@@ -129,7 +129,7 @@ void VoltageGraph::drawSeries()
 void VoltageGraph::updateValueGraphingCache(sampling::voltage::Range range)
 {
 	valueGraphingMultiplier = range.width() * cellHeight;
-	uint ΔmV = (heightDivisionsBelowZero() * yValueStep - range.minVoltage());
+	uint ΔmV = (heightDivisionsBelowZero() * yValueStep + range.minVoltage());
 	valueGraphingShift = ΔmV * cellHeight * 255u /*to make up for divider*/;
 	valueGraphingDividerForHeight = 255u * yValueStep;
 	valueGraphingBottomScreenY = y + height - halfHeightWasted;

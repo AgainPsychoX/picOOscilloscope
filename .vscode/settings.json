@@ -25,7 +25,8 @@
 		"textcolor",
 		"textdatum",
 		"textfont",
-		"UART"
+		"UART",
+		"Wsizeof"
 	],
 	"files.associations": {
 		"*.log": "vt100",

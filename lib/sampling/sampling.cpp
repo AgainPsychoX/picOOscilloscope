@@ -68,7 +68,7 @@ static inline void adc_set_clkdiv_integer(uint16_t div_int) {
 ////////////////////////////////////////
 // Sample rate
 
-static uint16_t _sampleRate;
+static uint32_t _sampleRate;
 
 uint32_t getSampleRate()
 {
@@ -77,10 +77,10 @@ uint32_t getSampleRate()
 
 uint32_t calculateSampleRate(uint16_t clockDivisor)
 {
-	if (clockDivisor < 96)
+	if (clockDivisor <= 96)
 		return getClockBase() / 96;
 	else
-		return getClockBase() / (clockDivisor + 1);
+		return getClockBase() / clockDivisor;
 }
 
 static uint32_t _timeBetweenSamples;
@@ -162,7 +162,7 @@ void init()
 			false,  // if true, sample entry will contain error flag at bit 15
 			isU8    // shift to be single byte, only for 8 bit resolution
 		);
-		adc_set_clkdiv_integer(_clockDivisor);
+		adc_set_clkdiv_integer(_clockDivisor - 1);
 	}
 
 	// Claim the DMA channels
